@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "cn.ussshenzhou.section31.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "section31.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
