@@ -22,7 +22,6 @@ public class OshiHelper {
     private static final HardwareAbstractionLayer HARDWARE = SYSTEM.getHardware();
     private static final CentralProcessor PROCESSOR = HARDWARE.getProcessor();
     private static final GlobalMemory RAM = HARDWARE.getMemory();
-    private static final List<NetworkIF> NETWORKS = HARDWARE.getNetworkIFs();
 
     private static final ScheduledExecutorService TIMER = Executors.newSingleThreadScheduledExecutor();
     private static final AtomicDouble CPULOAD = new AtomicDouble();
@@ -31,24 +30,34 @@ public class OshiHelper {
     private static final AtomicLong TX_DELTA = new AtomicLong();
     private static final AtomicLong RX_PREV = new AtomicLong();
     private static final AtomicLong TX_PREV = new AtomicLong();
-    private static final long MAX_NET_SPEED = NETWORKS.stream().mapToLong(n -> (int) n.getSpeed()).max().orElse(0);
+    private static final long MAX_NET_SPEED = HARDWARE.getNetworkIFs().stream()
+            .filter(NetworkIF::isConnectorPresent)
+            .filter(n -> n.getBytesSent() != 0)
+            .mapToLong(n -> (int) n.getSpeed())
+            .max().orElse(0);
     public static final Runnable UPDATE = () -> {
         long[] currTicks = PROCESSOR.getSystemCpuLoadTicks();
-        CPULOAD.set(PROCESSOR.getSystemCpuLoadBetweenTicks(prevTicks));
+        if (prevTicks != null) {
+            CPULOAD.set(PROCESSOR.getSystemCpuLoadBetweenTicks(prevTicks));
+        }
         prevTicks = currTicks;
 
-        for (NetworkIF net : NETWORKS) {
-            long rx = net.getBytesRecv();
-            long tx = net.getBytesSent();
+        long rx = 0, tx = 0;
+        for (NetworkIF net : HARDWARE.getNetworkIFs()) {
+            rx += net.getBytesRecv();
+            tx += net.getBytesSent();
+        }
+
+        if (RX_PREV.get() != 0) {
             RX_DELTA.set(rx - RX_PREV.get());
             TX_DELTA.set(tx - TX_PREV.get());
-            RX_PREV.set(rx);
-            TX_PREV.set(tx);
         }
+        RX_PREV.set(rx);
+        TX_PREV.set(tx);
     };
 
     static {
-        TIMER.scheduleWithFixedDelay(UPDATE, 0, 1, TimeUnit.SECONDS);
+        TIMER.scheduleAtFixedRate(UPDATE, 0, 1, TimeUnit.SECONDS);
     }
 
     public static float getCpu() {

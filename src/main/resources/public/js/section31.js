@@ -181,9 +181,9 @@ class SingleMetric extends HTMLElement {
                 show: false,
                 dimension: 1,
                 pieces: [
-                    {max: 0.75 * preferredMaxValue, color: '#3578e5'},
-                    {min: 0.75 * preferredMaxValue, max: 0.9 * preferredMaxValue, color: '#B8E635'},
-                    {min: 0.9 * preferredMaxValue, color: '#E64B35'}
+                    {max: 0.75 * this.preferredMaxValue, color: '#3578e5'},
+                    {min: 0.75 * this.preferredMaxValue, max: 0.9 * this.preferredMaxValue, color: '#B8E635'},
+                    {min: 0.9 * this.preferredMaxValue, color: '#E64B35'}
                 ]
             },
             series: [{
@@ -251,7 +251,7 @@ class SingleMetric extends HTMLElement {
         if (bytes === 0) return '0 B';
         const k = 1024;
         const dm = 2 < 0 ? 0 : 2;
-        const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+        const sizes = ['Bps', 'KiBps', 'MiBps', 'GiBps', 'TiBps', 'PiBps'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         const value = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
         return `${value} ${sizes[i]}`;
@@ -305,6 +305,15 @@ class SingleMetric extends HTMLElement {
         paddedData = paddedData.concat(this.historyData);
         this.lineOption.xAxis.data = paddedLabels;
         this.lineOption.series[0].data = paddedData;
+        this.lineOption.visualMap = {
+            show: false,
+            dimension: 1,
+            pieces: [
+                {max: 0.75 * this.preferredMaxValue, color: '#3578e5'},
+                {min: 0.75 * this.preferredMaxValue, max: 0.9 * this.preferredMaxValue, color: '#B8E635'},
+                {min: 0.9 * this.preferredMaxValue, color: '#E64B35'}
+            ]
+        };
         this.lineChart.setOption(this.lineOption);
     }
 }

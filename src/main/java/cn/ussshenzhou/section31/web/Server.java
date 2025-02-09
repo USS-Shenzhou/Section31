@@ -19,7 +19,7 @@ public class Server {
     public static final Route REFRESH = (req, res) -> {
         Map<String, Object> data = new HashMap<>();
 
-        data.put("players", MinecraftHelper.getPlayers());
+        data.put("player", MinecraftHelper.getPlayers());
         data.put("mspt", MinecraftHelper.getMspt());
         data.put("cpu", OshiHelper.getCpu());
         data.put("ram", OshiHelper.getRam());
@@ -31,7 +31,7 @@ public class Server {
     public static final Route INIT = (req, res) -> {
         Map<String, Object> data = new HashMap<>();
 
-        data.put("players", MinecraftHelper.getMaxPlayers());
+        data.put("player", MinecraftHelper.getMaxPlayers());
         data.put("mspt", MinecraftHelper.getMaxMspt());
         data.put("cpu", OshiHelper.getCpuMax());
         data.put("ram", OshiHelper.getRamMax());

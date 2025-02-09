@@ -10,46 +10,46 @@ import java.lang.ref.WeakReference;
  * @author USS_Shenzhou
  */
 public class MinecraftHelper {
-    private static final WeakReference<MinecraftServer> mcServer = new WeakReference<>(null);
+    private static MinecraftServer mcServer = null;
 
-    private static void tryInit() {
-        if (mcServer.get() != null) {
+    private static synchronized void tryInit() {
+        if (mcServer != null) {
+            if (mcServer.isShutdown() || mcServer.isStopped()) {
+                mcServer = null;
+            }
             return;
         }
         try {
             var server = LogicalSidedProvider.WORKQUEUE.get(LogicalSide.SERVER);
             if (server instanceof MinecraftServer minecraftServer) {
-                mcServer.refersTo(minecraftServer);
+                mcServer = minecraftServer;
             }
         } catch (NullPointerException ignored) {
         }
     }
 
     public static int getPlayers() {
-        if (mcServer.get() == null) {
+        if (mcServer == null) {
             tryInit();
             return 0;
         }
-        //noinspection DataFlowIssue
-        return mcServer.get().getPlayerCount();
+        return mcServer.getPlayerCount();
     }
 
     public static int getMaxPlayers() {
-        if (mcServer.get() == null) {
+        if (mcServer == null) {
             tryInit();
             return 0;
         }
-        //noinspection DataFlowIssue
-        return mcServer.get().getMaxPlayers();
+        return mcServer.getMaxPlayers();
     }
 
     public static float getMspt() {
-        if (mcServer.get() == null) {
+        if (mcServer == null) {
             tryInit();
             return 0;
         }
-        //noinspection DataFlowIssue
-        return mcServer.get().getTickTimesNanos()[mcServer.get().getTickCount() % 100];
+        return mcServer.getTickTimesNanos()[mcServer.getTickCount() % 100] / 1000_000f;
     }
 
     public static float getMaxMspt() {
