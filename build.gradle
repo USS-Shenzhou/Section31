@@ -116,23 +116,25 @@ dependencies {
         implementation 'org.slf4j:slf4j-api:2.0.9'
     }
 
-    jarJar(implementation('com.sparkjava:spark-core:2.9.4')) {
-        version {
-            strictly '[2.9,2.10)'
-            prefer '2.9.4'
-        }
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-    }
+    jarJar(implementation('com.sparkjava:spark-core:2.9.4'))
+    jarJar('org.eclipse.jetty:jetty-server:9.4.48.v20220622')
+    jarJar('javax.servlet:javax.servlet-api:3.1.0')
+    jarJar('org.eclipse.jetty:jetty-http:9.4.48.v20220622')
+    jarJar('org.eclipse.jetty:jetty-util:9.4.48.v20220622')
+    jarJar('org.eclipse.jetty:jetty-io:9.4.48.v20220622')
+    jarJar('org.eclipse.jetty:jetty-webapp:9.4.48.v20220622')
+    jarJar('org.eclipse.jetty:jetty-xml:9.4.48.v20220622')
+    jarJar('org.eclipse.jetty:jetty-servlet:9.4.48.v20220622')
+    jarJar('org.eclipse.jetty:jetty-security:9.4.48.v20220622')
+    jarJar('org.eclipse.jetty:jetty-util-ajax:9.4.48.v20220622')
+    jarJar('org.eclipse.jetty.websocket:websocket-server:9.4.48.v20220622')
+    jarJar('org.eclipse.jetty.websocket:websocket-common:9.4.48.v20220622')
+    jarJar('org.eclipse.jetty.websocket:websocket-api:9.4.48.v20220622')
+    jarJar('org.eclipse.jetty.websocket:websocket-client:9.4.48.v20220622')
+    jarJar('org.eclipse.jetty:jetty-client:9.4.48.v20220622')
+    jarJar('org.eclipse.jetty.websocket:websocket-servlet:9.4.48.v20220622')
+    jarJar('javax.servlet:javax.servlet-api:3.1.0')
     additionalRuntimeClasspath 'com.sparkjava:spark-core:2.9.4'
-
-    jarJar(implementation('com.github.oshi:oshi-core:6.5.0')) {
-        version {
-            strictly '[6,7)'
-            prefer '6.5.0'
-        }
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-    }
-    additionalRuntimeClasspath 'com.github.oshi:oshi-core:6.5.0'
 
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

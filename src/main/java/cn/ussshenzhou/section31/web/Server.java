@@ -3,6 +3,8 @@ package cn.ussshenzhou.section31.web;
 import cn.ussshenzhou.section31.backend.MinecraftHelper;
 import cn.ussshenzhou.section31.backend.OshiHelper;
 import com.google.gson.Gson;
+import com.mojang.logging.LogUtils;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
 import spark.Route;
@@ -43,19 +45,26 @@ public class Server {
 
     public static void init() {
         Thread serverThread = new Thread(() -> {
-            Spark.port(25570);
-            if (FMLLoader.isProduction()) {
-                Spark.staticFiles.location("/public");
-            } else {
-                Spark.staticFiles.externalLocation(FMLPaths.GAMEDIR.get().getParent().toString() + "\\src\\main\\resources\\public");
-            }
-            Spark.get("/api/all", REFRESH);
-            Spark.get("/api/init", INIT);
+            try {
+                Spark.port(FMLEnvironment.dist.isDedicatedServer() ? 25570 : 25571);
 
-            Spark.get("/", (req, res) -> {
-                res.redirect("/section31.html");
-                return null;
-            });
+                if (FMLLoader.isProduction()) {
+                    Spark.staticFiles.location("/public");
+                } else {
+                    Spark.staticFiles.externalLocation(FMLPaths.GAMEDIR.get().getParent().toString() + "\\src\\main\\resources\\public");
+                }
+                Spark.get("/api/all", REFRESH);
+                Spark.get("/api/init", INIT);
+
+                Spark.get("/", (req, res) -> {
+                    res.redirect("/section31.html");
+                    return null;
+                });
+                Spark.init();
+            } catch (Exception e) {
+                LogUtils.getLogger().error(e.getMessage());
+            }
+
         }, "Section31 Server");
         serverThread.setDaemon(true);
         serverThread.start();
