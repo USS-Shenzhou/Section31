@@ -34,7 +34,7 @@ public class OshiHelper {
             .filter(NetworkIF::isConnectorPresent)
             .filter(n -> n.getBytesSent() != 0)
             .mapToLong(n -> (int) n.getSpeed())
-            .max().orElse(0);
+            .max().orElse(0) / 8;
     public static final Runnable UPDATE = () -> {
         long[] currTicks = PROCESSOR.getSystemCpuLoadTicks();
         if (prevTicks != null) {

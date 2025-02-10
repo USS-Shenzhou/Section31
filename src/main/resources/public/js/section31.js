@@ -96,7 +96,7 @@ class SingleMetric extends HTMLElement {
                 if (maxDesc === null || maxDesc === undefined || maxDesc === "") {
                     return;
                 }
-                this.shadowRoot.querySelector('.max-desc').textContent = this.donutFormat(data[this.id]) + maxDesc;
+                this.shadowRoot.querySelector('.max-desc').textContent = this.formatValue(data[this.id]) + maxDesc;
             }
         });
     }
@@ -146,10 +146,9 @@ class SingleMetric extends HTMLElement {
                 label: {
                     show: true,
                     position: 'center',
-                    formatter: (value) => this.donutFormat(value),
+                    formatter: (value) => this.formatValue(value),
                     fontSize: '2rem',
                     fontWeight: 'bold',
-                    color: usedColor === '#3578e5' ? '#fff' : usedColor,
                 },
                 emphasis: {
                     scale: false
@@ -175,7 +174,7 @@ class SingleMetric extends HTMLElement {
             yAxis: {
                 type: 'value',
                 axisLine: {lineStyle: {color: '#888'}},
-                axisLabel: {formatter: (value) => this.lineFormat(value)}
+                axisLabel: {formatter: (value) => this.formatValue(value)}
             },
             visualMap: {
                 show: false,
@@ -205,7 +204,7 @@ class SingleMetric extends HTMLElement {
         this.lineChart.setOption(this.lineOption);
     }
 
-    donutFormat(value) {
+    formatValue(value) {
         if (value === null || value === undefined || value === "") {
             return "N/A";
         }
@@ -221,27 +220,6 @@ class SingleMetric extends HTMLElement {
                 return value.toFixed(2);
             case 'net':
                 return this.formatBytes(value);
-            default:
-                return value;
-        }
-    }
-
-    lineFormat(value) {
-        if (value === null || value === undefined || value === "") {
-            return "N/A";
-        }
-        if (typeof value !== "number" || isNaN(value)) {
-            return String(value);
-        }
-        switch (this.format) {
-            case 'int':
-                return Math.round(value);
-            case 'percent':
-                return (value * 100).toFixed(0) + '%';
-            case 'float':
-                return value.toFixed(2);
-            case 'net':
-                return value;
             default:
                 return value;
         }
@@ -273,7 +251,7 @@ class SingleMetric extends HTMLElement {
             usedColor = '#3578e5';
         }
 
-        let formattedValue = this.donutFormat(newValue);
+        let formattedValue = this.formatValue(newValue);
         let baseFontSize = 2;
         let extraChars = Math.max(0, formattedValue.length - 5);
         let fontSize = baseFontSize - extraChars * 0.2;
