@@ -41,8 +41,8 @@ a) As a game player, when you load and play this program in Minecraft, this lice
 ### 其他开源信息 | Other Open-Source Information
 
 1. [Spark](https://github.com/perwendel/spark)，按Apache-2.0取得许可；
-2. [OSHI](Apache-2.0 license)，按MIT取得许可；
+2. [OSHI](https://github.com/oshi/oshi)，按MIT取得许可；
 
 
 1. [Spark](https://github.com/perwendel/spark)，licensed with Apache-2.0；
-2. [OSHI](Apache-2.0 license)，licensed with MIT；
+2. [OSHI](https://github.com/oshi/oshi)，licensed with MIT；
