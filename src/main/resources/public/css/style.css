@@ -67,3 +67,20 @@ header {
 .line-container {
     flex: 1;
 }
+
+.metric-group {
+    margin: 1rem 0 0 0;
+}
+
+.group-title {
+    font-size: 1.35rem;
+    font-weight: bold;
+    padding: 0.5rem 1.2rem;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.metrics-group-container {
+}

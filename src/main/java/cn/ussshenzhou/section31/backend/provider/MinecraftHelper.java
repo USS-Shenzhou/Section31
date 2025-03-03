@@ -1,10 +1,8 @@
-package cn.ussshenzhou.section31.backend;
+package cn.ussshenzhou.section31.backend.provider;
 
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.common.util.LogicalSidedProvider;
-
-import java.lang.ref.WeakReference;
 
 /**
  * @author USS_Shenzhou

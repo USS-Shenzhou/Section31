@@ -1,6 +1,6 @@
 package cn.ussshenzhou.section31;
 
-import cn.ussshenzhou.section31.web.Server;
+import cn.ussshenzhou.section31.web.SparkServer;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -16,7 +16,7 @@ public class Section31 {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     static {
-        Server.init();
+        SparkServer.init();
         LogUtils.getLogger().info("Welcome to Section 31!");
     }
 

@@ -19,6 +19,9 @@ Just load it like regular mod, then open `127.0.0.1:25570`(server) or `127.0.0.1
 
 1. 与MTR不兼容。
 
+
+1. Not compatible with MTR.
+
 ## 版权和许可 | Copyrights and Licenses
 Copyright (C) 2025 USS_Shenzhou
 

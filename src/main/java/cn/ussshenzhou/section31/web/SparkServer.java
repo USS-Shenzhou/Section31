@@ -1,7 +1,7 @@
 package cn.ussshenzhou.section31.web;
 
-import cn.ussshenzhou.section31.backend.MinecraftHelper;
-import cn.ussshenzhou.section31.backend.OshiHelper;
+import cn.ussshenzhou.section31.backend.provider.MinecraftHelper;
+import cn.ussshenzhou.section31.backend.provider.OshiHelper;
 import com.google.gson.Gson;
 import com.mojang.logging.LogUtils;
 import net.neoforged.fml.loading.FMLEnvironment;
@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * @author USS_Shenzhou
  */
-public class Server {
+public class SparkServer {
     public static final Gson GSON = new Gson();
     public static final Route REFRESH = (req, res) -> {
         Map<String, Object> data = new HashMap<>();

@@ -146,7 +146,6 @@ class SingleMetric extends HTMLElement {
                 label: {
                     show: true,
                     position: 'center',
-                    formatter: (value) => this.formatValue(value),
                     fontSize: '2rem',
                     fontWeight: 'bold',
                 },
@@ -204,7 +203,7 @@ class SingleMetric extends HTMLElement {
         this.lineChart.setOption(this.lineOption);
     }
 
-    formatValue(value) {
+    formatValue(value, netLine = false) {
         if (value === null || value === undefined || value === "") {
             return "N/A";
         }
@@ -213,26 +212,25 @@ class SingleMetric extends HTMLElement {
         }
         switch (this.format) {
             case 'int':
-                return Math.round(value);
+                return Math.round(value) + `\u200B`;
             case 'percent':
                 return (value * 100).toFixed(0) + '%';
             case 'float':
                 return value.toFixed(2);
             case 'net':
-                return this.formatBytes(value);
+                return this.formatBytes(value, netLine);
             default:
                 return value;
         }
     }
 
-    formatBytes(bytes) {
+    formatBytes(bytes, netLine = false) {
         if (bytes === 0) return '0 B';
         const k = 1024;
-        const dm = 2 < 0 ? 0 : 2;
         const sizes = ['Bps', 'KiBps', 'MiBps', 'GiBps', 'TiBps', 'PiBps'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        const value = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
-        return `${value} ${sizes[i]}`;
+        const value = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
+        return netLine ? `${value}\n${sizes[i]}` : `${value} ${sizes[i]}`;
     }
 
     updateData(newValue) {
@@ -254,10 +252,10 @@ class SingleMetric extends HTMLElement {
         let formattedValue = this.formatValue(newValue);
         let baseFontSize = 2;
         let extraChars = Math.max(0, formattedValue.length - 5);
-        let fontSize = baseFontSize - extraChars * 0.2;
-        if (fontSize < 1) fontSize = 1;
+        let fontSize = Math.max(1, baseFontSize - extraChars * 0.2);
+        let donutValue = this.formatValue(newValue, true)
         this.donutOption.series[0].label.formatter = function () {
-            return formattedValue;
+            return donutValue;
         };
         this.donutOption.series[0].label.fontSize = fontSize + 'rem';
         this.donutOption.series[0].data[0].value = newValue;
