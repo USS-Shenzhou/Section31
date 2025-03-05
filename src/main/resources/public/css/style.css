@@ -29,7 +29,7 @@ header {
 }
 
 .single-metric {
-    margin: 1rem;
+    margin: 0.8rem;
     padding: 0;
 }
 
@@ -37,7 +37,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 8px;
+    padding-bottom: 0.5rem;
     border-bottom: 0.2rem solid #3578e5;
     margin-bottom: 0.5rem;
 }
@@ -64,8 +64,8 @@ header {
 }
 
 .donut-container {
-    height: 12rem;
-    width: 12rem;
+    height: 10rem;
+    width: 10rem;
 }
 
 .line-container {

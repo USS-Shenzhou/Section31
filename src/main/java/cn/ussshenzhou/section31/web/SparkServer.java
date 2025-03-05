@@ -1,47 +1,17 @@
 package cn.ussshenzhou.section31.web;
 
-import cn.ussshenzhou.section31.backend.provider.MinecraftHelper;
-import cn.ussshenzhou.section31.backend.provider.OshiHelper;
-import com.google.gson.Gson;
+import cn.ussshenzhou.section31.backend.DataSourceManager;
+import cn.ussshenzhou.section31.backend.PageGenerator;
 import com.mojang.logging.LogUtils;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
-import spark.Route;
 import spark.Spark;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author USS_Shenzhou
  */
 public class SparkServer {
-    public static final Gson GSON = new Gson();
-    public static final Route REFRESH = (req, res) -> {
-        Map<String, Object> data = new HashMap<>();
-
-        data.put("player", MinecraftHelper.getPlayers());
-        data.put("mspt", MinecraftHelper.getMspt());
-        data.put("cpu", OshiHelper.getCpu());
-        data.put("ram", OshiHelper.getRam());
-        data.put("in", OshiHelper.getNetRx());
-        data.put("out", OshiHelper.getNetTx());
-
-        return GSON.toJson(data);
-    };
-    public static final Route INIT = (req, res) -> {
-        Map<String, Object> data = new HashMap<>();
-
-        data.put("player", MinecraftHelper.getMaxPlayers());
-        data.put("mspt", MinecraftHelper.getMaxMspt());
-        data.put("cpu", OshiHelper.getCpuMax());
-        data.put("ram", OshiHelper.getRamMax());
-        data.put("in", OshiHelper.getNetMax());
-        data.put("out", OshiHelper.getNetMax());
-
-        return GSON.toJson(data);
-    };
 
     public static void init() {
         Thread serverThread = new Thread(() -> {
@@ -53,12 +23,16 @@ public class SparkServer {
                 } else {
                     Spark.staticFiles.externalLocation(FMLPaths.GAMEDIR.get().getParent().toString() + "\\src\\main\\resources\\public");
                 }
-                Spark.get("/api/all", REFRESH);
-                Spark.get("/api/init", INIT);
+                Spark.get("/api/all", (req, res) -> DataSourceManager.getRefreshData());
+                Spark.get("/api/init", (req, res) -> DataSourceManager.getInitData());
 
                 Spark.get("/", (req, res) -> {
-                    res.redirect("/section31.html");
+                    res.redirect("/section31");
                     return null;
+                });
+                Spark.get("/section31", (req, res) -> {
+                    res.type("text/html");
+                    return PageGenerator.getPage();
                 });
                 Spark.init();
             } catch (Exception e) {

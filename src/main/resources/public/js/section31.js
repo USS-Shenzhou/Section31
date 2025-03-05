@@ -146,7 +146,7 @@ class SingleMetric extends HTMLElement {
                 label: {
                     show: true,
                     position: 'center',
-                    fontSize: '2rem',
+                    fontSize: '1.75rem',
                     fontWeight: 'bold',
                 },
                 emphasis: {
@@ -218,16 +218,27 @@ class SingleMetric extends HTMLElement {
             case 'float':
                 return value.toFixed(2);
             case 'net':
-                return this.formatBytes(value, netLine);
+                return this.formatNet(value, netLine);
+            case 'byte':
+                return this.formatByte(value, netLine);
             default:
                 return value;
         }
     }
 
-    formatBytes(bytes, netLine = false) {
+    formatNet(bytes, netLine = false) {
         if (bytes === 0) return '0 B';
         const k = 1024;
         const sizes = ['Bps', 'KiBps', 'MiBps', 'GiBps', 'TiBps', 'PiBps'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        const value = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
+        return netLine ? `${value}\n${sizes[i]}` : `${value} ${sizes[i]}`;
+    }
+
+    formatByte(bytes, netLine = false) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['Byte', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         const value = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
         return netLine ? `${value}\n${sizes[i]}` : `${value} ${sizes[i]}`;
@@ -250,7 +261,7 @@ class SingleMetric extends HTMLElement {
         }
 
         let formattedValue = this.formatValue(newValue);
-        let baseFontSize = 2;
+        let baseFontSize = 1.75;
         let extraChars = Math.max(0, formattedValue.length - 5);
         let fontSize = Math.max(1, baseFontSize - extraChars * 0.2);
         let donutValue = this.formatValue(newValue, true)
@@ -265,8 +276,8 @@ class SingleMetric extends HTMLElement {
         this.donutChart.setOption(this.donutOption);
 
         const lineContainerWidth = this.shadowRoot.querySelector('.line-container').clientWidth;
-        const pointWidth = 5;
-        const maxPoints = Math.floor(lineContainerWidth / pointWidth);
+        const pointDensity = 3;
+        const maxPoints = Math.floor(lineContainerWidth / pointDensity);
 
         this.historyData.push(newValue);
         this.timeLabels.push(currentTime);
