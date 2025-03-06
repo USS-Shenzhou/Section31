@@ -67,11 +67,11 @@ public class OshiHelper {
     }
 
     public static float getRam() {
-        return (RAM.getTotal() - RAM.getAvailable()) / (1024f * 1024 * 1024);
+        return RAM.getTotal() - RAM.getAvailable();
     }
 
     public static float getRamMax() {
-        return (RAM.getTotal()) / (1024f * 1024 * 1024);
+        return RAM.getTotal();
     }
 
     public static long getNetRx() {

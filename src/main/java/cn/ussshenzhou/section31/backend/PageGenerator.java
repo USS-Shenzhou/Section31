@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -45,22 +46,36 @@ public class PageGenerator {
         MetricsManager.getMetrics().forEach((group, metrics) -> {
             content.append(String.format("""
                     <details open class="metric-group">
-                        <summary class="group-title">%s</summary>
-                        <div class="metrics-group-container">""", group));
-            metrics.forEach((metric) -> content.append(String.format("""
-                            <single-metric
-                                    id="%1$s"
-                                    name="%2$s"
-                                    desc="%3$s"
-                                    max-desc="%4$s"
-                                    preferred-max=""
-                                    format="%5$s">
-                            </single-metric>""",
-                    metric.id(),
-                    metric.name(),
-                    metric.desc(),
-                    metric.maxDesc(),
-                    metric.format())));
+                        <summary class="group-title">%s</summary>""", group));
+            boolean important = true;
+            for (int i = 0; i < metrics.size(); i++) {
+                var metric = metrics.get(i);
+                if (i == 0) {
+                    important = metric.important();
+                    content.append(String.format("""
+                            <div class="metrics-group-container%s" >""", important ? "" : "-grid"));
+                }
+                if (important != metric.important()) {
+                    content.append("</div>\n");
+                    important = metric.important();
+                    content.append(String.format("""
+                            <div class="metrics-group-container%s" >""", important ? "" : "-grid"));
+                }
+                content.append(String.format("""
+                                <single-metric
+                                        id="%1$s"
+                                        name="%2$s"
+                                        desc="%3$s"
+                                        max-desc="%4$s"
+                                        preferred-max=""
+                                        format="%5$s">
+                                </single-metric>""",
+                        metric.id(),
+                        metric.name(),
+                        metric.desc(),
+                        metric.maxDesc(),
+                        metric.format()));
+            }
             content.append("""
                         </div>
                     </details>""");

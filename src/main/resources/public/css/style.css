@@ -28,6 +28,24 @@ header {
     font-weight: bold;
 }
 
+.metrics-group-container {
+    margin: 0;
+    padding: 0;
+}
+
+.metrics-group-container-grid {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media screen and (max-width: 996px) {
+    .metrics-group-container-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .single-metric {
     margin: 0.8rem;
     padding: 0;
@@ -64,6 +82,11 @@ header {
 }
 
 .donut-container {
+    height: 10rem;
+    width: 10rem;
+}
+
+.metrics-group-container-grid .donut-container {
     height: 10rem;
     width: 10rem;
 }

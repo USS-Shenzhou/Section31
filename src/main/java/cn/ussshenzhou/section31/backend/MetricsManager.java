@@ -39,21 +39,23 @@ import java.util.Map;
  * {@code sourceClass} Full class name of your provider.
  * <p>
  * {@code sourceMethod} Static method name of your provider.
+ * <p>
+ * {@code important} If true, metric will take 100% width. Otherwise, it will take 50%.
  */
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class MetricsManager {
     private static final LinkedHashMap<String, ArrayList<Metric>> METRICS = new LinkedHashMap<>() {{
         put("Minecraft in-game", Lists.newArrayList(
-                new Metric("player", "Players", "", "", "int", MinecraftHelper::getPlayers, MinecraftHelper::getMaxPlayers),
-                new Metric("mspt", "MSPT", "Millisecond per Tick", "", "float", MinecraftHelper::getMspt, MinecraftHelper::getMaxMspt)
+                new Metric("player", "Players", "", "", "int", MinecraftHelper::getPlayers, MinecraftHelper::getMaxPlayers, true),
+                new Metric("mspt", "MSPT", "Millisecond per Tick", "", "float", MinecraftHelper::getMspt, MinecraftHelper::getMaxMspt, true)
         ));
         var jvmList = JvmHelper.getMemoryPoolMetrics();
         put("Java Virtual Machine", jvmList);
         put("System/Hardware", Lists.newArrayList(
-                new Metric("cpu", "CPU", "CPU usage", "", "percent", OshiHelper::getCpu, OshiHelper::getCpuMax),
-                new Metric("ram", "RAM", "", " GiB", "float", OshiHelper::getRam, OshiHelper::getRamMax),
-                new Metric("in", "Network Rx", "Inbound", " ", "net", OshiHelper::getNetRx, OshiHelper::getNetMax),
-                new Metric("out", "Network Tx", "Outbound", " ", "net", OshiHelper::getNetTx, OshiHelper::getNetMax)
+                new Metric("cpu", "CPU", "CPU usage", "", "percent", OshiHelper::getCpu, OshiHelper::getCpuMax, true),
+                new Metric("ram", "RAM", "", " ", "byte", OshiHelper::getRam, OshiHelper::getRamMax, true),
+                new Metric("in", "Network Rx", "Inbound", " ", "net", OshiHelper::getNetRx, OshiHelper::getNetMax, false),
+                new Metric("out", "Network Tx", "Outbound", " ", "net", OshiHelper::getNetTx, OshiHelper::getNetMax, false)
         ));
     }};
 
@@ -110,7 +112,8 @@ public class MetricsManager {
                                                     LogUtils.getLogger().error(e.getMessage());
                                                     throw new RuntimeException(e);
                                                 }
-                                            }
+                                            },
+                                            Boolean.getBoolean(getOrDefault(dataMap, "important", "true"))
                                     ));
                         }
                     }

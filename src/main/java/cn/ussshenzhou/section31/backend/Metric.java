@@ -8,6 +8,7 @@ public record Metric(String id,
                      String maxDesc,
                      String format,
                      Supplier<?> provider,
-                     Supplier<?> maxProvider
+                     Supplier<?> maxProvider,
+                     boolean important
 ) {
 }

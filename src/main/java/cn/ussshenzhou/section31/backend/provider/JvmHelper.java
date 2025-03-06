@@ -15,7 +15,7 @@ public class JvmHelper {
     public static ArrayList<Metric> getMemoryPoolMetrics() {
         var list = new ArrayList<Metric>();
         var mem = ManagementFactory.getMemoryMXBean();
-        list.add(new Metric("heap", "Heap", "", " ", "byte", () -> mem.getHeapMemoryUsage().getUsed(), () -> mem.getHeapMemoryUsage().getMax()));
+        list.add(new Metric("heap", "Heap", "", " ", "byte", () -> mem.getHeapMemoryUsage().getUsed(), () -> mem.getHeapMemoryUsage().getMax(), true));
         ManagementFactory.getMemoryPoolMXBeans()
                 .stream()
                 .filter(MemoryPoolMXBean::isValid)
@@ -25,7 +25,7 @@ public class JvmHelper {
                     list.add(new Metric(name, name, "", " ", "byte", () -> pool.getUsage().getUsed(), () -> {
                         var max = pool.getUsage().getMax();
                         return max == -1 ? 0 : max;
-                    }));
+                    }, false));
                 });
         return list;
     }
