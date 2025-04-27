@@ -133,8 +133,8 @@ header {
     text-decoration: underline;
 }
 
-.gpl3-logo {
-    filter: hue-rotate(219deg) brightness(2) saturate(0.7);
+.agpl3-logo {
+    filter: hue-rotate(295deg) brightness(1.8) saturate(1.5);
     vertical-align: middle;
     height: 4rem;
     margin: 1rem 1.5rem;
