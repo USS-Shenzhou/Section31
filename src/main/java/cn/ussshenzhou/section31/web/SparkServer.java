@@ -3,9 +3,11 @@ package cn.ussshenzhou.section31.web;
 import cn.ussshenzhou.section31.backend.DataSourceManager;
 import cn.ussshenzhou.section31.backend.PageGenerator;
 import com.mojang.logging.LogUtils;
+import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.fml.util.thread.EffectiveSide;
 import spark.Spark;
 
 /**
@@ -16,9 +18,9 @@ public class SparkServer {
     public static void init() {
         Thread serverThread = new Thread(() -> {
             try {
-                Spark.port(FMLEnvironment.dist.isDedicatedServer() ? 25570 : 25571);
+                Spark.port(EffectiveSide.get() == LogicalSide.SERVER ? 25570 : 25571);
 
-                if (FMLLoader.isProduction()) {
+                if (FMLEnvironment.isProduction()) {
                     Spark.staticFiles.location("/public");
                 } else {
                     Spark.staticFiles.externalLocation(FMLPaths.GAMEDIR.get().getParent().toString() + "\\src\\main\\resources\\public");

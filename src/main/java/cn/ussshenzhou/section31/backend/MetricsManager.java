@@ -42,7 +42,7 @@ import java.util.Map;
  * <p>
  * {@code important} If true, metric will take 100% width. Otherwise, it will take 50%.
  */
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber
 public class MetricsManager {
     private static final LinkedHashMap<String, ArrayList<Metric>> METRICS = new LinkedHashMap<>() {{
         put("Minecraft in-game", Lists.newArrayList(

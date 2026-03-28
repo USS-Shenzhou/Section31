@@ -2,7 +2,7 @@ package cn.ussshenzhou.section31.backend.provider;
 
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.common.util.LogicalSidedProvider;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 /**
  * @author USS_Shenzhou
@@ -18,7 +18,7 @@ public class MinecraftHelper {
             return;
         }
         try {
-            var server = LogicalSidedProvider.WORKQUEUE.get(LogicalSide.SERVER);
+            var server = ServerLifecycleHooks.getCurrentServer();
             if (server instanceof MinecraftServer minecraftServer) {
                 mcServer = minecraftServer;
             }
