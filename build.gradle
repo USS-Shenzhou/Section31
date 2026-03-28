@@ -188,3 +188,89 @@ idea {
         downloadJavadoc = true
     }
 }
+
+
+import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
+import java.util.jar.Manifest
+
+abstract class MakeLibMixinableTask extends DefaultTask {
+
+    @InputFile
+    abstract RegularFileProperty getTargetJar()
+
+    @TaskAction
+    void processJar() {
+        def mainJarFile = getTargetJar().get().asFile
+        if (!mainJarFile.exists()) {
+            return
+        }
+
+        URI mainUri = URI.create("jar:" + mainJarFile.toPath().toUri().toString())
+
+        try {
+            FileSystems.newFileSystem(mainUri, Collections.emptyMap()).withCloseable { mainFs ->
+                Path jarJarDir = mainFs.getPath("/META-INF/jarjar")
+                if (!Files.exists(jarJarDir)) {
+                    return
+                }
+
+                Files.list(jarJarDir).forEach { innerJarPath ->
+                    String fileName = innerJarPath.getFileName().toString()
+
+                    if (!fileName.endsWith(".jar")) {
+                        return
+                    }
+
+                    Path tempJar = Files.createTempFile("temp-jarinjar", ".jar")
+                    Files.copy(innerJarPath, tempJar, StandardCopyOption.REPLACE_EXISTING)
+
+                    boolean needsUpdate = false
+                    URI tempUri = URI.create("jar:" + tempJar.toUri().toString())
+
+                    FileSystems.newFileSystem(tempUri, Collections.emptyMap()).withCloseable { tempFs ->
+                        Path manifestPath = tempFs.getPath("/META-INF/MANIFEST.MF")
+
+                        if (Files.exists(manifestPath)) {
+                            Manifest manifest
+                            Files.newInputStream(manifestPath).withCloseable { is ->
+                                manifest = new Manifest(is)
+                            }
+
+                            def attrs = manifest.getMainAttributes()
+                            String fmlModType = attrs.getValue("FMLModType")
+
+                            if (fmlModType != null) {
+                                println("Skip modifying ${fileName}, already has FMLModType=${fmlModType}")
+                            } else {
+                                attrs.putValue("FMLModType", "GAMELIBRARY")
+                                Files.newOutputStream(manifestPath).withCloseable { os ->
+                                    manifest.write(os)
+                                }
+                                needsUpdate = true
+                            }
+                        }
+                    }
+
+                    if (needsUpdate) {
+                        Files.copy(tempJar, innerJarPath, StandardCopyOption.REPLACE_EXISTING)
+                    }
+
+                    Files.deleteIfExists(tempJar)
+                }
+            }
+        } catch (Exception e) {
+            println("Failed to inject manifest entry in: " + mainJarFile.name, e)
+        }
+    }
+}
+
+tasks.register("makeLibMixinableTask", MakeLibMixinableTask) {
+    targetJar.set(tasks.named("jar").flatMap { it.archiveFile })
+}
+
+tasks.named("build") {
+    finalizedBy tasks.named("makeLibMixinableTask")
+}

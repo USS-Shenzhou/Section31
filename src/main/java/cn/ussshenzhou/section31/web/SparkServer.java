@@ -21,7 +21,7 @@ public class SparkServer {
                 Spark.port(EffectiveSide.get() == LogicalSide.SERVER ? 25570 : 25571);
 
                 if (FMLEnvironment.isProduction()) {
-                    Spark.staticFiles.location("/public");
+                    Spark.staticFiles.location("public");
                 } else {
                     Spark.staticFiles.externalLocation(FMLPaths.GAMEDIR.get().getParent().toString() + "\\src\\main\\resources\\public");
                 }
