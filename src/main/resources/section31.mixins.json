@@ -5,6 +5,8 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "section31.refmap.json",
   "mixins": [
+    "PacketDecoderMixin",
+    "PacketEncoderMixin",
     "spark.ClassPathResourceMixin"
   ],
   "client": [

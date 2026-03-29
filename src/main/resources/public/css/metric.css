@@ -26,7 +26,7 @@
     justify-content: space-between;
     align-items: center;
     padding-bottom: 0.5rem;
-    border-bottom: 0.2rem solid #3578e5;
+    border-bottom: 0.2rem solid #3c91ff;
     margin-bottom: 0.5rem;
 }
 
@@ -52,12 +52,7 @@
 }
 
 .donut-container {
-    height: 8rem;
-    width: 10rem;
-}
-
-.metrics-group-container-grid .donut-container {
-    height: 8rem;
+    height: var(--metric-height, 8rem);
     width: 10rem;
 }
 

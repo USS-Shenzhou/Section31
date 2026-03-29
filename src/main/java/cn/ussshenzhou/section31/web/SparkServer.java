@@ -1,11 +1,10 @@
 package cn.ussshenzhou.section31.web;
 
-import cn.ussshenzhou.section31.backend.DataSourceManager;
+import cn.ussshenzhou.section31.backend.DataSourceHelper;
 import cn.ussshenzhou.section31.backend.PageGenerator;
 import com.mojang.logging.LogUtils;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.fml.util.thread.EffectiveSide;
 import spark.Spark;
@@ -25,8 +24,8 @@ public class SparkServer {
                 } else {
                     Spark.staticFiles.externalLocation(FMLPaths.GAMEDIR.get().getParent().toString() + "\\src\\main\\resources\\public");
                 }
-                Spark.get("/api/all", (req, res) -> DataSourceManager.getRefreshData());
-                Spark.get("/api/init", (req, res) -> DataSourceManager.getInitData());
+                Spark.get("/api/all", (req, res) -> DataSourceHelper.getRefreshData());
+                Spark.get("/api/init", (req, res) -> DataSourceHelper.getInitData());
 
                 Spark.get("/", (req, res) -> {
                     res.redirect("/section31");

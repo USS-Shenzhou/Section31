@@ -1,22 +1,18 @@
 package cn.ussshenzhou.section31.backend;
 
-import cn.ussshenzhou.section31.Section31;
-import cn.ussshenzhou.section31.backend.metric.Metric;
+import cn.ussshenzhou.section31.backend.metric.BasicMetric;
+import cn.ussshenzhou.section31.backend.metric.StackedMetric;
 import cn.ussshenzhou.section31.provider.JvmHelper;
 import cn.ussshenzhou.section31.provider.MinecraftHelper;
 import cn.ussshenzhou.section31.provider.OshiHelper;
+import cn.ussshenzhou.section31.provider.network.NetworkDataProvider;
 import com.google.common.collect.Lists;
-import com.mojang.logging.LogUtils;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * @author USS_Shenzhou
@@ -43,92 +39,28 @@ import java.util.Map;
  * <p>
  * {@code important} If true, metric will take 100% width. Otherwise, it will take 50%.
  */
-@EventBusSubscriber
 public class MetricsManager {
-    private static final LinkedHashMap<String, ArrayList<Metric>> METRICS = new LinkedHashMap<>() {{
+    public static final Supplier<Integer> NO_MAX = () -> 0;
+    protected static final LinkedHashMap<String, ArrayList<BasicMetric>> METRICS = new LinkedHashMap<>() {{
         put("Minecraft in-game", Lists.newArrayList(
-                new Metric("player", "Players", "", "", "int", MinecraftHelper::getPlayers, MinecraftHelper::getMaxPlayers, true),
-                new Metric("mspt", "MSPT", "Millisecond per Tick", "", "float", MinecraftHelper::getMspt, MinecraftHelper::getMaxMspt, true)
+                new BasicMetric("player", "Players", "", "", "int", MinecraftHelper::getPlayers, MinecraftHelper::getMaxPlayers, 1),
+                new BasicMetric("mspt", "MSPT", "Millisecond per Tick", "", "float", MinecraftHelper::getMspt, MinecraftHelper::getMaxMspt, 1),
+                new StackedMetric("outbound_size", "Tx Packet Flow", "Outbound packet and size", " ", "net", NetworkDataProvider.OUTBOUND_PACKET_SIZE::read, NO_MAX, -1),
+                new StackedMetric("inbound_size", "Rx Packet Flow", "Inbound packet and size", " ", "net", NetworkDataProvider.INBOUND_PACKET_SIZE::read, NO_MAX, -1),
+                new StackedMetric("outbound_count", "Tx Packet Count", "Outbound packet count", " ", "int", NetworkDataProvider.OUTBOUND_PACKET_COUNT::read, NO_MAX, 2),
+                new StackedMetric("inbound_count", "Rx Packet Count", "Inbound packet count", " ", "int", NetworkDataProvider.INBOUND_PACKET_COUNT::read, NO_MAX, 2)
         ));
         var jvmList = JvmHelper.getMemoryPoolMetrics();
         put("Java Virtual Machine", jvmList);
         put("System/Hardware", Lists.newArrayList(
-                new Metric("cpu", "CPU", "CPU usage", "", "percent", OshiHelper::getCpu, OshiHelper::getCpuMax, true),
-                new Metric("ram", "RAM", "", " ", "byte", OshiHelper::getRam, OshiHelper::getRamMax, true),
-                new Metric("in", "Network Rx", "Inbound", " ", "net", OshiHelper::getNetRx, OshiHelper::getNetMax, false),
-                new Metric("out", "Network Tx", "Outbound", " ", "net", OshiHelper::getNetTx, OshiHelper::getNetMax, false)
+                new BasicMetric("cpu", "CPU", "CPU usage", "", "percent", OshiHelper::getCpu, OshiHelper::getCpuMax, 1),
+                new BasicMetric("ram", "RAM", "", " ", "byte", OshiHelper::getRam, OshiHelper::getRamMax, 1),
+                new BasicMetric("in", "Network Rx", "Inbound", " ", "net", OshiHelper::getNetRx, OshiHelper::getNetMax, 2),
+                new BasicMetric("out", "Network Tx", "Outbound", " ", "net", OshiHelper::getNetTx, OshiHelper::getNetMax, 2)
         ));
     }};
 
-    @SubscribeEvent
-    public static void receiveAllThirdPartyMetrics(FMLLoadCompleteEvent event) {
-        InterModComms.getMessages(Section31.MODID)
-                .forEach(message -> {
-                    var supplied = message.messageSupplier().get();
-                    if (supplied instanceof Map<?, ?> dataMap
-                            && dataMap.containsKey("id")
-                            && dataMap.containsKey("preferredMaxClass")
-                            && dataMap.containsKey("preferredMaxMethod")
-                            && dataMap.containsKey("sourceClass")
-                            && dataMap.containsKey("sourceMethod")
-                    ) {
-                        Method maxProvider;
-                        Method provider;
-                        try {
-                            var clazz = Class.forName((String) dataMap.get("preferredMaxClass"));
-                            maxProvider = clazz.getDeclaredMethod((String) dataMap.get("preferredMaxMethod"));
-                            maxProvider.setAccessible(true);
-                            clazz = Class.forName((String) dataMap.get("sourceClass"));
-                            provider = clazz.getDeclaredMethod((String) dataMap.get("sourceMethod"));
-                            provider.setAccessible(true);
-                        } catch (ClassNotFoundException | NoSuchMethodException e) {
-                            LogUtils.getLogger().error("Failed to load metric source {} # {} of {}.",
-                                    dataMap.get("sourceClass"),
-                                    dataMap.get("sourceMethod"),
-                                    message.modId()
-                            );
-                            LogUtils.getLogger().error(e.getMessage());
-                            return;
-                        }
-                        synchronized (METRICS) {
-                            METRICS.computeIfAbsent(getOrDefault(dataMap, "group", message.modId()), k -> new ArrayList<>())
-                                    .add(new Metric(
-                                            (String) dataMap.get("id"),
-                                            getOrDefault(dataMap, "name", (String) dataMap.get("id")),
-                                            getOrDefault(dataMap, "desc", ""),
-                                            getOrDefault(dataMap, "maxDesc", ""),
-                                            getOrDefault(dataMap, "format", "float"),
-                                            () -> {
-                                                try {
-                                                    return maxProvider.invoke(null);
-                                                } catch (IllegalAccessException | InvocationTargetException e) {
-                                                    LogUtils.getLogger().error(e.getMessage());
-                                                    throw new RuntimeException(e);
-                                                }
-                                            },
-                                            () -> {
-                                                try {
-                                                    return provider.invoke(null);
-                                                } catch (IllegalAccessException | InvocationTargetException e) {
-                                                    LogUtils.getLogger().error(e.getMessage());
-                                                    throw new RuntimeException(e);
-                                                }
-                                            },
-                                            Boolean.getBoolean(getOrDefault(dataMap, "important", "true"))
-                                    ));
-                        }
-                    }
-                });
-    }
-
-    private static String getOrDefault(Map<?, ?> map, Object key, String defaultValue) {
-        if (map.containsKey(key)) {
-            return (String) map.get(key);
-        }
-        return defaultValue;
-    }
-
-    public static Map<String, ArrayList<Metric>> getMetrics() {
+    public static Map<String, ArrayList<BasicMetric>> getMetrics() {
         return METRICS;
     }
 }

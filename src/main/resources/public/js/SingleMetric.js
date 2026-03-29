@@ -1,87 +1,12 @@
-import * as Util from './util.js';
+import * as Util from './Util.js';
+import {calculateFontSize} from './Util.js';
+import {BaseMetric} from './BaseMetric.js';
 
-const template = document.createElement('template');
-template.innerHTML = `
-  <div class="single-metric">
-    <div class="metric-header">
-      <div class="metric-title">
-        <span class="name"></span>
-        <span class="desc"></span>
-      </div>
-      <div class="metric-max">
-        <span class="max-desc"></span>
-      </div>
-    </div>
-    <div class="metric-body">
-      <div class="donut-container"></div>
-      <div class="line-container"></div>
-    </div>
-  </div>
-`;
-
-export class SingleMetric extends HTMLElement {
+export class SingleMetric extends BaseMetric {
     constructor() {
         super();
-        this.attachShadow({mode: 'open'});
-        this.shadowRoot.appendChild(template.content.cloneNode(true));
-    }
-
-    connectedCallback() {
-        const linkElem = document.createElement('link');
-        linkElem.setAttribute('rel', 'stylesheet');
-        linkElem.setAttribute('href', '/css/style.css');
-        linkElem.onload = () => {
-            const metricName = this.getAttribute('name') || 'Default Metric';
-            const description = this.getAttribute('desc') || '';
-            const maxDescription = this.getAttribute('max-desc') || '';
-            this.id = this.getAttribute('id') || '';
-            this.preferredMaxValue = Number(this.getAttribute('preferred-max')) || 0;
-            this.format = this.getAttribute('format') || 'float';
-            this.shadowRoot.querySelector('.name').textContent = metricName;
-            this.shadowRoot.querySelector('.desc').textContent = description;
-            this.shadowRoot.querySelector('.max-desc').textContent = maxDescription;
-            this.renderCharts();
-        };
-        this.shadowRoot.prepend(linkElem);
-        window.addEventListener('resize', () => {
-            const lineContainer = this.shadowRoot.querySelector('.line-container');
-            const containerWidth = lineContainer.clientWidth;
-            const pointWidth = 5;
-            const maxPoints = Math.floor(containerWidth / pointWidth);
-
-            let displayedLabels = [];
-            let displayedData = [];
-            if (this.historyData.length >= maxPoints) {
-                displayedLabels = this.timeLabels.slice(-maxPoints);
-                displayedData = this.historyData.slice(-maxPoints);
-            } else {
-                const paddingCount = maxPoints - this.historyData.length;
-                displayedLabels = Array(paddingCount).fill("").concat(this.timeLabels);
-                displayedData = Array(paddingCount).fill(null).concat(this.historyData);
-            }
-            this.lineOption.xAxis.data = displayedLabels;
-            this.lineOption.series[0].data = displayedData;
-            this.lineChart.resize();
-            this.lineChart.setOption(this.lineOption);
-        });
-        window.addEventListener('metricsUpdate', (event) => {
-            const data = event.detail;
-            if (data[this.id]) {
-                const metricData = data[this.id];
-                this.updateData(metricData);
-            }
-        });
-        window.addEventListener('metricsInit', (event) => {
-            const data = event.detail;
-            if (data[this.id]) {
-                this.preferredMaxValue = Number(data[this.id]);
-                let maxDesc = this.shadowRoot.querySelector('.max-desc').textContent;
-                if (maxDesc === null || maxDesc === undefined || maxDesc === "") {
-                    return;
-                }
-                this.shadowRoot.querySelector('.max-desc').textContent = Util.formatValue(data[this.id], this.format) + maxDesc;
-            }
-        });
+        this.historyData = [];
+        this.timeLabels = [];
     }
 
     renderCharts() {
@@ -89,25 +14,14 @@ export class SingleMetric extends HTMLElement {
         const lineContainer = this.shadowRoot.querySelector('.line-container');
 
         const currentValue = 0;
-        const preferredMaxValue = this.preferredMaxValue;
-        const fullValue = 2 * preferredMaxValue;
-        this.historyData = [];
-        this.timeLabels = [];
+        const fullValue = 2 * this.preferredMaxValue;
 
-        let usedColor;
-        if (preferredMaxValue === 0) {
-            usedColor = '#3578e5'
-        } else if (currentValue >= 0.9 * preferredMaxValue) {
-            usedColor = '#E64B35';
-        } else if (currentValue >= 0.75 * preferredMaxValue) {
-            usedColor = '#B8E635';
-        } else {
-            usedColor = '#3578e5';
-        }
+        let usedColor = this.getThresholdColor(currentValue, this.preferredMaxValue);
 
-        this.donutChart = echarts.init(donutContainer, 'dark');
+        this.donutChart = echarts.init(donutContainer, 'dark', {renderer: 'svg'});
         const innerRadius = 50;
         const outerRadius = 70;
+
         this.donutOption = {
             backgroundColor: 'transparent',
             series: [{
@@ -118,7 +32,7 @@ export class SingleMetric extends HTMLElement {
                     {
                         value: currentValue,
                         name: 'Used',
-                        itemStyle: {color: usedColor}
+                        itemStyle: {color: this.preferredMaxValue === 0 ? 'transparent' : usedColor}
                     },
                     {
                         value: Math.max(0, fullValue - Math.min(currentValue, fullValue)),
@@ -131,6 +45,9 @@ export class SingleMetric extends HTMLElement {
                     position: 'center',
                     fontSize: '1.75rem',
                     fontWeight: 'bold',
+                    color: usedColor,
+                    textBorderColor: '#000000a0',
+                    textBorderWidth: 3
                 },
                 emphasis: {
                     scale: false
@@ -142,7 +59,7 @@ export class SingleMetric extends HTMLElement {
         };
         this.donutChart.setOption(this.donutOption);
 
-        this.lineChart = echarts.init(lineContainer, 'dark');
+        this.lineChart = echarts.init(lineContainer, 'dark', {renderer: 'svg'});
         this.lineOption = {
             backgroundColor: 'transparent',
             xAxis: {
@@ -162,57 +79,98 @@ export class SingleMetric extends HTMLElement {
                 show: false,
                 dimension: 1,
                 pieces: [
-                    {max: 0.75 * this.preferredMaxValue, color: '#3578e5'},
+                    {max: 0.75 * this.preferredMaxValue, color: '#3c91ff'},
                     {min: 0.75 * this.preferredMaxValue, max: 0.9 * this.preferredMaxValue, color: '#B8E635'},
                     {min: 0.9 * this.preferredMaxValue, color: '#E64B35'}
                 ]
             },
             series: [{
-                data: this.timeLabels,
+                data: this.historyData,
                 type: 'line',
                 symbol: 'none',
                 lineStyle: {width: 2},
                 areaStyle: {color: 'rgba(53,120,229,0.2)'}
             }],
-            tooltip: {trigger: 'axis'},
+            tooltip: {
+                trigger: 'axis',
+                formatter: (params) => {
+                    const item = params[0];
+                    if (item.value === null || item.value === undefined) {
+                        return '';
+                    }
+                    const formattedValue = Util.formatValue(item.value, this.format);
+                    return `
+                                <div>${params[0].axisValue}</div>
+                                <div style="display: flex; align-items: center;">
+                                    ${item.marker}
+                                    <b>${formattedValue}</b>
+                                </div>
+                            `;
+                }
+            },
             grid: {
-                left: '0.5%',
-                right: '2%',
-                bottom: '2.5%',
-                top: '5%',
-                containLabel: true
+                left: '0',
+                right: '0',
+                bottom: '0',
+                top: '0',
+                containLabel: false
             },
         };
         this.lineChart.setOption(this.lineOption);
     }
 
+    bindEvents() {
+        window.addEventListener('resize', () => {
+            if (!this.lineChart) return;
+
+            const lineContainer = this.shadowRoot.querySelector('.line-container');
+            const containerWidth = lineContainer.clientWidth;
+            const pointWidth = 5;
+            const maxPoints = Math.floor(containerWidth / pointWidth);
+
+            let displayedLabels = [];
+            let displayedData = [];
+
+            if (this.historyData.length >= maxPoints) {
+                displayedLabels = this.timeLabels.slice(-maxPoints);
+                displayedData = this.historyData.slice(-maxPoints);
+            } else {
+                const paddingCount = maxPoints - this.historyData.length;
+                displayedLabels = Array(paddingCount).fill("").concat(this.timeLabels);
+                displayedData = Array(paddingCount).fill(null).concat(this.historyData);
+            }
+
+            this.lineOption.xAxis.data = displayedLabels;
+            this.lineOption.series[0].data = displayedData;
+            this.lineChart.resize();
+            this.lineChart.setOption(this.lineOption);
+        });
+
+        window.addEventListener('metricsUpdate', (event) => {
+            const data = event.detail;
+            if (data[this.id] !== undefined) {
+                this.updateData(data[this.id]);
+            }
+        });
+    }
+
     updateData(newValue) {
         let currentTime = new Date().toLocaleTimeString();
-        const preferredMax = this.preferredMaxValue;
-        const fullValue = 2 * preferredMax;
+        const fullValue = 2 * this.preferredMaxValue;
 
-        let usedColor;
-        if (preferredMax === 0) {
-            usedColor = '#3578e5'
-        } else if (newValue >= 0.9 * preferredMax) {
-            usedColor = '#E64B35';
-        } else if (newValue >= 0.75 * preferredMax) {
-            usedColor = '#B8E635';
-        } else {
-            usedColor = '#3578e5';
-        }
+        let usedColor = this.getThresholdColor(newValue, this.preferredMaxValue);
 
         let formattedValue = Util.formatValue(newValue, this.format);
-        let baseFontSize = 1.75;
-        let extraChars = Math.max(0, formattedValue.length - 5);
-        let fontSize = Math.max(1, baseFontSize - extraChars * 0.2);
-        let donutValue = Util.formatValue(newValue, this.format, true)
+        let donutValue = Util.formatValue(newValue, this.format, true);
+
         this.donutOption.series[0].label.formatter = function () {
             return donutValue;
         };
-        this.donutOption.series[0].label.fontSize = fontSize + 'rem';
+        this.donutOption.series[0].label.fontSize = calculateFontSize(formattedValue, this.preferredMaxValue) + 'rem';
+        this.donutOption.series[0].label.textBorderColor = '#000000a0';
+        this.donutOption.series[0].label.textBorderWidth = 3;
         this.donutOption.series[0].data[0].value = newValue;
-        this.donutOption.series[0].data[0].itemStyle.color = usedColor;
+        this.donutOption.series[0].data[0].itemStyle.color = (this.preferredMaxValue === 0) ? 'transparent' : usedColor;
         this.donutOption.series[0].label.color = usedColor;
         this.donutOption.series[0].data[1].value = Math.max(0, fullValue - Math.min(newValue, fullValue));
         this.donutChart.setOption(this.donutOption);
@@ -223,26 +181,29 @@ export class SingleMetric extends HTMLElement {
 
         this.historyData.push(newValue);
         this.timeLabels.push(currentTime);
+
         if (this.historyData.length > maxPoints) {
             this.historyData.shift();
             this.timeLabels.shift();
         }
+
         let paddingCount = maxPoints - this.historyData.length;
-        let paddedLabels = Array(paddingCount).fill("");
-        let paddedData = Array(paddingCount).fill(null);
-        paddedLabels = paddedLabels.concat(this.timeLabels);
-        paddedData = paddedData.concat(this.historyData);
+        let paddedLabels = Array(paddingCount).fill("").concat(this.timeLabels);
+        let paddedData = Array(paddingCount).fill(null).concat(this.historyData);
+
         this.lineOption.xAxis.data = paddedLabels;
         this.lineOption.series[0].data = paddedData;
+
         this.lineOption.visualMap = {
             show: false,
             dimension: 1,
             pieces: [
-                {max: 0.75 * this.preferredMaxValue, color: '#3578e5'},
+                {max: 0.75 * this.preferredMaxValue, color: '#3c91ff'},
                 {min: 0.75 * this.preferredMaxValue, max: 0.9 * this.preferredMaxValue, color: '#B8E635'},
                 {min: 0.9 * this.preferredMaxValue, color: '#E64B35'}
             ]
         };
+
         this.lineChart.setOption(this.lineOption);
     }
 }

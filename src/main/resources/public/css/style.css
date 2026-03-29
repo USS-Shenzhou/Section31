@@ -14,7 +14,7 @@ header {
     align-items: center;
     padding: 0 0.5rem;
     box-sizing: border-box;
-    border-bottom: 0.4rem solid #3578e5;
+    border-bottom: 0.4rem solid #3c91ff;
 }
 
 .logo {
@@ -49,7 +49,7 @@ header {
 }
 
 .site-footer a {
-    color: #3578e5;
+    color: #3c91ff;
     text-decoration: none;
 }
 

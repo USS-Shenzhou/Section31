@@ -1,4 +1,5 @@
 import {SingleMetric} from "./SingleMetric.js";
+import {StackedMetric} from "./StackedMetric.js";
 
 setInterval(() => {
     fetch('/api/all')

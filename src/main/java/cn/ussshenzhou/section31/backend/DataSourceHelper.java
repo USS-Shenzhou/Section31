@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * @author USS_Shenzhou
  */
-public class DataSourceManager {
+public class DataSourceHelper {
     public static final Gson GSON = new Gson();
 
     public static String getInitData() {
