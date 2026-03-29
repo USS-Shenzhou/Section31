@@ -1,4 +1,4 @@
-package cn.ussshenzhou.section31.backend.provider;
+package cn.ussshenzhou.section31.provider;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import oshi.SystemInfo;

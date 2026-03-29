@@ -1,4 +1,4 @@
-package cn.ussshenzhou.section31.backend;
+package cn.ussshenzhou.section31.backend.metric;
 
 import java.util.function.Supplier;
 

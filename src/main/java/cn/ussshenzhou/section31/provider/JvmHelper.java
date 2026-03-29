@@ -1,6 +1,6 @@
-package cn.ussshenzhou.section31.backend.provider;
+package cn.ussshenzhou.section31.provider;
 
-import cn.ussshenzhou.section31.backend.Metric;
+import cn.ussshenzhou.section31.backend.metric.Metric;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;

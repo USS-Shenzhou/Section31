@@ -46,7 +46,7 @@ public class PageGenerator {
         MetricsManager.getMetrics().forEach((group, metrics) -> {
             content.append(String.format("""
                     <details open class="metric-group">
-                        <summary class="group-title">%s</summary>""", group));
+                        <summary class="metric-group-title">%s</summary>""", group));
             boolean important = true;
             for (int i = 0; i < metrics.size(); i++) {
                 var metric = metrics.get(i);

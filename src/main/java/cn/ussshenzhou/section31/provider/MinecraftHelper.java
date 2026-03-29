@@ -1,7 +1,6 @@
-package cn.ussshenzhou.section31.backend.provider;
+package cn.ussshenzhou.section31.provider;
 
 import net.minecraft.server.MinecraftServer;
-import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 /**
