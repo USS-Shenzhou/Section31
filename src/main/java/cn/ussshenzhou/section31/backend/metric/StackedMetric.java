@@ -6,8 +6,8 @@ import java.util.function.Supplier;
  * @author USS_Shenzhou
  */
 public class StackedMetric extends BasicMetric{
-    public StackedMetric(String id, String name, String desc, String maxDesc, String format, Supplier<?> provider, Supplier<?> maxProvider, int important) {
-        super(id, name, desc, maxDesc, format, provider, maxProvider, important);
+    public StackedMetric(String id, String name, String desc, String maxDesc, String format, Supplier<?> provider, Supplier<?> maxProvider, int importance) {
+        super(id, name, desc, maxDesc, format, provider, maxProvider, importance);
     }
 
     @Override

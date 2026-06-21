@@ -106,7 +106,9 @@ export class SingleMetric extends BaseMetric {
                                     <b>${formattedValue}</b>
                                 </div>
                             `;
-                }
+                },
+                transitionDuration: 0.15,
+                hideDelay: 0,
             },
             grid: {
                 left: '0',

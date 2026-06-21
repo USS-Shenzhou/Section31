@@ -1,0 +1,36 @@
+.pause-glow-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: inset 0 0 1vmin 0.6vmin rgba(255, 0, 0, 0.7);
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.pause-glow-overlay.active {
+    opacity: 1;
+}
+
+.space-hint-toast {
+    position: fixed;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    border: 0.2rem solid #3c91ff;
+    border-radius: 1rem;
+    font-size: 1.25rem;
+    pointer-events: none;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.space-hint-toast.show {
+    opacity: 1;
+}

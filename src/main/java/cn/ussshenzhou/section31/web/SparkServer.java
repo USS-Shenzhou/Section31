@@ -2,7 +2,9 @@ package cn.ussshenzhou.section31.web;
 
 import cn.ussshenzhou.section31.backend.DataSourceHelper;
 import cn.ussshenzhou.section31.backend.PageGenerator;
+import cn.ussshenzhou.section31.util.Util;
 import com.mojang.logging.LogUtils;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
@@ -17,7 +19,7 @@ public class SparkServer {
     public static void init() {
         Thread serverThread = new Thread(() -> {
             try {
-                Spark.port(EffectiveSide.get() == LogicalSide.SERVER ? 25570 : 25571);
+                Spark.port(Util.IS_SERVER ? 25570 : 25571);
 
                 if (FMLEnvironment.isProduction()) {
                     Spark.staticFiles.location("public");

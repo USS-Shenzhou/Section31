@@ -62,7 +62,7 @@ export function getColorFromKey(key) {
         const pathHash = Math.abs(getStringHash(path));
         const h = nsHash % 360;
         const s = 40 + (pathHash % 61);
-        const l = 30 + (pathHash % 51);
+        const l = 27 + (pathHash % 51);
 
         return `hsl(${h}, ${s}%, ${l}%)`;
     } else {

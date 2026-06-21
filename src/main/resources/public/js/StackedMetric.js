@@ -42,7 +42,7 @@ export class StackedMetric extends BaseMetric {
                 formatter: (params) => {
                     if (!params || params.length === 0) return '';
                     let validParams = params.filter(item => {
-                        return typeof item.value === 'number' && item.value > 0;
+                        return typeof item.value === 'number' && item.value !== 0;
                     });
                     if (validParams.length === 0) return '';
                     if (this.currentMouseY < (window.innerHeight / 2)) {
@@ -54,7 +54,7 @@ export class StackedMetric extends BaseMetric {
                     validParams.forEach(item => {
                         res += `
                                     <div style="display: flex; justify-content: space-between;">
-                                        <span>${item.marker} ${item.seriesName}</span>
+                                        <span>${item.marker} ${item.seriesName}&nbsp;</span>
                                         <b style="margin-left: auto;">${Util.formatValue(item.value, this.format)}</b>
                                     </div>
                                 `;
@@ -78,6 +78,8 @@ export class StackedMetric extends BaseMetric {
                     }
                     return [x, y];
                 },
+                transitionDuration: 0.15,
+                hideDelay: 0,
             },
             grid: {left: '0', right: '0', bottom: '0', top: '0', containLabel: false},
             xAxis: {
