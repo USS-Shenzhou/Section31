@@ -36,6 +36,7 @@ public class JvmHelper {
                 });
     }
 
+    //TODO not accurate
     public static void getThreadsMetrics(ArrayList<BasicMetric> list) {
         ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
         if (!threadMXBean.isThreadCpuTimeEnabled()) {
