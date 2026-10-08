@@ -17,20 +17,87 @@
 
 .space-hint-toast {
     position: fixed;
-    top: 0.5rem;
-    right: 0.5rem;
-    background-color: rgba(0, 0, 0, 0.75);
-    color: #ffffff;
-    padding: 0.5rem 1rem;
-    border: 0.2rem solid #3c91ff;
-    border-radius: 1rem;
+    bottom: 38%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: transparent;
+    padding: 0.7rem 1.2rem;
     font-size: 1.25rem;
+    white-space: nowrap;
     pointer-events: none;
     z-index: 10000;
+    transition: color 0.15s ease-in-out;
+}
+
+.space-hint-toast::before,
+.space-hint-toast::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
     opacity: 0;
     transition: opacity 0.15s ease-in-out;
 }
 
+.space-hint-toast::before {
+    inset: -10rem;
+    -webkit-backdrop-filter: blur(0.5rem);
+    backdrop-filter: blur(0.5rem);
+    -webkit-mask-image:
+            linear-gradient(to right, transparent, #000000 10rem, #000000 calc(100% - 10rem), transparent),
+            linear-gradient(to bottom, transparent, #000000 10rem, #000000 calc(100% - 10rem), transparent);
+    -webkit-mask-composite: source-in;
+    mask-image:
+            linear-gradient(to right, transparent, #000000 10rem, #000000 calc(100% - 10rem), transparent),
+            linear-gradient(to bottom, transparent, #000000 10rem, #000000 calc(100% - 10rem), transparent);
+    mask-composite: intersect;
+}
+
+.space-hint-toast::after {
+    inset: 0;
+    border-radius: 1rem;
+}
+
 .space-hint-toast.show {
+    color: #ffffff;
+}
+
+.space-hint-toast.show::before,
+.space-hint-toast.show::after {
     opacity: 1;
+}
+
+.space-hint-border {
+    position: absolute;
+    top: 0.1rem;
+    left: 0.1rem;
+    width: calc(100% - 0.2rem);
+    height: calc(100% - 0.2rem);
+    overflow: visible;
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.space-hint-border rect {
+    rx: 0.9rem;
+    fill: none;
+    stroke: #3c91ff;
+    stroke-width: 0.2rem;
+    stroke-dasharray: 100 100;
+}
+
+.space-hint-toast.show .space-hint-border {
+    opacity: 1;
+}
+
+.space-hint-toast.show .space-hint-border rect {
+    animation: space-hint-border-draw 8s linear;
+}
+
+@keyframes space-hint-border-draw {
+    from {
+        stroke-dashoffset: 100;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
 }

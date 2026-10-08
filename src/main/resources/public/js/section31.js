@@ -56,13 +56,10 @@ const hintToast = document.getElementById('space-hint-toast');
 
 window.addEventListener('load', () => {
     if (hintToast) {
+        hintToast.addEventListener('animationend', () => {
+            hintToast.classList.remove('show');
+        }, {once: true});
         hintToast.classList.add('show');
-
-        setTimeout(() => {
-            if (hintToast.classList.contains('show')) {
-                hintToast.classList.remove('show');
-            }
-        }, 4000);
     }
 });
 
