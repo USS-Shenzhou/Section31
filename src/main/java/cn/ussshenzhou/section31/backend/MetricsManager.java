@@ -7,12 +7,12 @@ import cn.ussshenzhou.section31.provider.MinecraftClientHelper;
 import cn.ussshenzhou.section31.provider.MinecraftServerHelper;
 import cn.ussshenzhou.section31.provider.OshiHelper;
 import cn.ussshenzhou.section31.provider.network.NetworkDataProvider;
-import cn.ussshenzhou.section31.util.Util;
 import com.google.common.collect.Lists;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import static cn.ussshenzhou.section31.util.Util.NO_MAX;
@@ -44,7 +44,7 @@ import static cn.ussshenzhou.section31.util.Util.NO_MAX;
  */
 public class MetricsManager {
     protected static final LinkedHashMap<String, ArrayList<BasicMetric>> METRICS = new LinkedHashMap<>() {{
-        if (Util.IS_SERVER) {
+        if (FMLEnvironment.getDist() == Dist.DEDICATED_SERVER) {
             put("Minecraft Server", Lists.newArrayList(
                     new BasicMetric("player", "Server Players", "", "", "int", MinecraftServerHelper::getPlayers, MinecraftServerHelper::getMaxPlayers, 1),
                     new BasicMetric("mspt", "Server MSPT", "Millisecond per Tick", "", "float", MinecraftServerHelper::getMspt, MinecraftServerHelper::getMaxMspt, 1),

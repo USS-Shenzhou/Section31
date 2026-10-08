@@ -19,7 +19,7 @@ public class SparkServer {
     public static void init() {
         Thread serverThread = new Thread(() -> {
             try {
-                Spark.port(Util.IS_SERVER ? 25570 : 25571);
+                Spark.port(FMLEnvironment.getDist() == Dist.DEDICATED_SERVER ? 25570 : 25571);
 
                 if (FMLEnvironment.isProduction()) {
                     Spark.staticFiles.location("public");
