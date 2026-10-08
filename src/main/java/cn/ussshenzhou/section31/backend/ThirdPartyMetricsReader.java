@@ -10,7 +10,6 @@ import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -49,7 +48,8 @@ public class ThirdPartyMetricsReader {
                             return;
                         }
                         synchronized (MetricsManager.METRICS) {
-                            MetricsManager.METRICS.computeIfAbsent(getOrDefault(dataMap, "group", message.modId()), k -> new ArrayList<>())
+                            MetricsManager.getOrCreateTab(getOrDefault(dataMap, "tab", message.modId()))
+                                    .group(getOrDefault(dataMap, "group", message.modId()))
                                     .add(new BasicMetric(
                                             (String) dataMap.get("id"),
                                             getOrDefault(dataMap, "name", (String) dataMap.get("id")),
@@ -58,7 +58,7 @@ public class ThirdPartyMetricsReader {
                                             getOrDefault(dataMap, "format", "float"),
                                             () -> {
                                                 try {
-                                                    return maxProvider.invoke(null);
+                                                    return provider.invoke(null);
                                                 } catch (IllegalAccessException | InvocationTargetException e) {
                                                     LogUtils.getLogger().error(e.getMessage());
                                                     throw new RuntimeException(e);
@@ -66,13 +66,13 @@ public class ThirdPartyMetricsReader {
                                             },
                                             () -> {
                                                 try {
-                                                    return provider.invoke(null);
+                                                    return maxProvider.invoke(null);
                                                 } catch (IllegalAccessException | InvocationTargetException e) {
                                                     LogUtils.getLogger().error(e.getMessage());
                                                     throw new RuntimeException(e);
                                                 }
                                             },
-                                            Integer.parseInt(getOrDefault(dataMap, "important", "true"))
+                                            Integer.parseInt(getOrDefault(dataMap, "importance", "1"))
                                     ));
                         }
                     }

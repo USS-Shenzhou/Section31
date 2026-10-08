@@ -5,6 +5,36 @@ let pollingIntervalId = null;
 let isPolling = false;
 const glowOverlay = document.getElementById('pause-glow-overlay');
 
+const content = document.getElementById('content');
+const sidebar = document.getElementById('sidebar');
+const sidebarToggle = document.getElementById('sidebar-toggle');
+const tabButtons = Array.from(document.querySelectorAll('.tab-button'));
+const tabPanels = Array.from(document.querySelectorAll('.tab-panel'));
+
+function selectTab(tabId) {
+    tabButtons.forEach(button => {
+        button.classList.toggle('active', button.dataset.tab === tabId);
+    });
+    tabPanels.forEach(panel => {
+        panel.hidden = panel.dataset.tab !== tabId;
+    });
+    content.scrollTop = 0;
+}
+
+tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        if (!button.classList.contains('active')) {
+            selectTab(button.dataset.tab);
+        }
+        button.blur();
+    });
+});
+
+sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    sidebarToggle.blur();
+});
+
 function fetchMetrics() {
     fetch('/api/all')
         .then(response => response.json())

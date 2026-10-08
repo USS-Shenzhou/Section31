@@ -7,6 +7,7 @@ export class SingleMetric extends BaseMetric {
         super();
         this.historyData = [];
         this.timeLabels = [];
+        this.latestValue = undefined;
     }
 
     renderCharts() {
@@ -121,43 +122,49 @@ export class SingleMetric extends BaseMetric {
         this.lineChart.setOption(this.lineOption);
     }
 
-    bindEvents() {
-        window.addEventListener('resize', () => {
-            if (!this.lineChart) return;
-
-            const lineContainer = this.shadowRoot.querySelector('.line-container');
-            const containerWidth = lineContainer.clientWidth;
-            const pointWidth = 5;
-            const maxPoints = Math.floor(containerWidth / pointWidth);
-
-            let displayedLabels = [];
-            let displayedData = [];
-
-            if (this.historyData.length >= maxPoints) {
-                displayedLabels = this.timeLabels.slice(-maxPoints);
-                displayedData = this.historyData.slice(-maxPoints);
-            } else {
-                const paddingCount = maxPoints - this.historyData.length;
-                displayedLabels = Array(paddingCount).fill("").concat(this.timeLabels);
-                displayedData = Array(paddingCount).fill(null).concat(this.historyData);
-            }
-
-            this.lineOption.xAxis.data = displayedLabels;
-            this.lineOption.series[0].data = displayedData;
-            this.lineChart.resize();
-            this.lineChart.setOption(this.lineOption);
-        });
-
-        window.addEventListener('metricsUpdate', (event) => {
-            const data = event.detail;
-            if (data[this.id] !== undefined) {
-                this.updateData(data[this.id]);
-            }
-        });
+    pushData(newValue, timeLabel) {
+        this.latestValue = newValue;
+        this.historyData.push(newValue);
+        this.timeLabels.push(timeLabel);
     }
 
-    updateData(newValue) {
-        let currentTime = new Date().toLocaleTimeString();
+    trimHistory(capacity) {
+        const overflow = this.historyData.length - capacity;
+        if (overflow > 0) {
+            this.historyData.splice(0, overflow);
+            this.timeLabels.splice(0, overflow);
+        }
+    }
+
+    render() {
+        const maxPoints = this.getVisiblePointCount();
+        if (maxPoints <= 0) {
+            return;
+        }
+        if (this.latestValue !== undefined) {
+            this.renderDonut(this.latestValue);
+        }
+
+        const shownData = this.historyData.slice(-maxPoints);
+        const shownLabels = this.timeLabels.slice(-maxPoints);
+        const paddingCount = maxPoints - shownData.length;
+        this.lineOption.xAxis.data = Array(paddingCount).fill("").concat(shownLabels);
+        this.lineOption.series[0].data = Array(paddingCount).fill(null).concat(shownData);
+
+        this.lineOption.visualMap = {
+            show: false,
+            dimension: 1,
+            pieces: [
+                {max: 0.75 * this.preferredMaxValue, color: '#3c91ff'},
+                {min: 0.75 * this.preferredMaxValue, max: 0.9 * this.preferredMaxValue, color: '#B8E635'},
+                {min: 0.9 * this.preferredMaxValue, color: '#E64B35'}
+            ]
+        };
+
+        this.lineChart.setOption(this.lineOption);
+    }
+
+    renderDonut(newValue) {
         const fullValue = 2 * this.preferredMaxValue;
 
         let usedColor = this.getThresholdColor(newValue, this.preferredMaxValue);
@@ -176,37 +183,6 @@ export class SingleMetric extends BaseMetric {
         this.donutOption.series[0].label.color = usedColor;
         this.donutOption.series[0].data[1].value = Math.max(0, fullValue - Math.min(newValue, fullValue));
         this.donutChart.setOption(this.donutOption);
-
-        const lineContainerWidth = this.shadowRoot.querySelector('.line-container').clientWidth;
-        const pointDensity = 3;
-        const maxPoints = Math.floor(lineContainerWidth / pointDensity);
-
-        this.historyData.push(newValue);
-        this.timeLabels.push(currentTime);
-
-        if (this.historyData.length > maxPoints) {
-            this.historyData.shift();
-            this.timeLabels.shift();
-        }
-
-        let paddingCount = maxPoints - this.historyData.length;
-        let paddedLabels = Array(paddingCount).fill("").concat(this.timeLabels);
-        let paddedData = Array(paddingCount).fill(null).concat(this.historyData);
-
-        this.lineOption.xAxis.data = paddedLabels;
-        this.lineOption.series[0].data = paddedData;
-
-        this.lineOption.visualMap = {
-            show: false,
-            dimension: 1,
-            pieces: [
-                {max: 0.75 * this.preferredMaxValue, color: '#3c91ff'},
-                {min: 0.75 * this.preferredMaxValue, max: 0.9 * this.preferredMaxValue, color: '#B8E635'},
-                {min: 0.9 * this.preferredMaxValue, color: '#E64B35'}
-            ]
-        };
-
-        this.lineChart.setOption(this.lineOption);
     }
 }
 

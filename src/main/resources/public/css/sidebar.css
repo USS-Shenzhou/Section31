@@ -1,0 +1,119 @@
+.app-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+}
+
+.sidebar {
+    flex: none;
+    width: 15rem;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #202020;
+    transition: width 0.15s ease-in-out;
+}
+
+.sidebar.collapsed {
+    width: 3rem;
+}
+
+.sidebar-item {
+    flex: none;
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    height: 2.75rem;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #ffffff;
+    font: inherit;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.sidebar-item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-item.active {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.sidebar-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0.2rem;
+    background-color: #3c91ff;
+}
+
+.tab-icon {
+    flex: none;
+    width: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tab-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: butt;
+    stroke-linejoin: miter;
+}
+
+.tab-icon-letter {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border: 0.125rem solid currentColor;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.tab-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    padding-right: 0.75rem;
+}
+
+.sidebar-footer {
+    flex: none;
+    margin-top: auto;
+    padding: 1rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: #ffffff;
+    white-space: nowrap;
+}
+
+.sidebar.collapsed .sidebar-footer {
+    display: none;
+}
+
+.sidebar-footer a {
+    color: #3c91ff;
+    text-decoration: none;
+}
+
+.sidebar-footer a:hover {
+    text-decoration: underline;
+}

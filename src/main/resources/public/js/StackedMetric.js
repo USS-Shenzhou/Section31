@@ -8,6 +8,7 @@ export class StackedMetric extends BaseMetric {
         this.historyData = {};
         this.timeLabels = [];
         this.knownKeys = new Set();
+        this.latestTotal = undefined;
         this.currentMouseX = 0;
         this.currentMouseY = 0;
         this.hoveredSeriesName = null;
@@ -98,28 +99,17 @@ export class StackedMetric extends BaseMetric {
         this.lineChart.setOption(this.lineOption);
     }
 
-    bindEvents() {
-        window.addEventListener('resize', () => {
-            this.lineChart && this.lineChart.resize();
-        });
-
-        window.addEventListener('metricsUpdate', (event) => {
-            const data = event.detail;
-            if (data[this.id]) {
-                this.updateData(data[this.id]);
-            }
-        });
+    bindChartEvents() {
         this.lineChart.getZr().on('mousemove', (params) => {
             this.currentMouseX = params.event.clientX;
             this.currentMouseY = params.event.clientY;
         });
     }
 
-    updateData(newMap) {
-        const currentTime = new Date().toLocaleTimeString();
-        const lineContainerWidth = this.shadowRoot.querySelector('.line-container').clientWidth;
-        const maxPoints = Math.floor(lineContainerWidth / 3);
-
+    pushData(newMap, timeLabel) {
+        if (!newMap) {
+            return;
+        }
         let totalValue = 0;
         for (let key in newMap) {
             totalValue += newMap[key];
@@ -128,36 +118,41 @@ export class StackedMetric extends BaseMetric {
                 this.historyData[key] = new Array(this.timeLabels.length).fill(0);
             }
         }
+        this.latestTotal = totalValue;
 
-        const usedColor = this.getThresholdColor(totalValue, this.preferredMaxValue);
-        const formattedTotal = Util.formatValue(totalValue, this.format, true);
-        this.donutOption.series[0].data[0].value = totalValue;
-        this.donutOption.series[0].data[0].itemStyle.color = (this.preferredMaxValue === 0) ? 'transparent' : usedColor;
-        this.donutOption.series[0].label.formatter = () => formattedTotal;
-        this.donutOption.series[0].label.textBorderColor = '#000000a0';
-        this.donutOption.series[0].label.textBorderWidth = 3;
-        this.donutOption.series[0].label.color = usedColor;
-        this.donutOption.series[0].label.fontSize = calculateFontSize(formattedTotal, this.preferredMaxValue) + 'rem';
-        this.donutOption.series[0].data[1].value = Math.max(0, (2 * this.preferredMaxValue) - totalValue);
-        this.donutChart.setOption(this.donutOption);
-
-        this.timeLabels.push(currentTime);
-        if (this.timeLabels.length > maxPoints) this.timeLabels.shift();
-
+        this.timeLabels.push(timeLabel);
         this.knownKeys.forEach(key => {
-            const val = newMap[key] || null;
-            this.historyData[key].push(val);
-            if (this.historyData[key].length > maxPoints) {
-                this.historyData[key].shift();
-            }
+            const value = newMap[key] || null;
+            this.historyData[key].push(value);
         });
+    }
 
-        const paddingCount = maxPoints - this.timeLabels.length;
-        const paddedLabels = Array(paddingCount).fill("").concat(this.timeLabels);
+    trimHistory(capacity) {
+        const overflow = this.timeLabels.length - capacity;
+        if (overflow > 0) {
+            this.timeLabels.splice(0, overflow);
+            this.knownKeys.forEach(key => {
+                this.historyData[key].splice(0, overflow);
+            });
+        }
+    }
+
+    render() {
+        const maxPoints = this.getVisiblePointCount();
+        if (maxPoints <= 0) {
+            return;
+        }
+        if (this.latestTotal !== undefined) {
+            this.renderDonut(this.latestTotal);
+        }
+
+        const shownLabels = this.timeLabels.slice(-maxPoints);
+        const paddingCount = maxPoints - shownLabels.length;
+        const paddedLabels = Array(paddingCount).fill("").concat(shownLabels);
 
         const newSeries = [];
         this.knownKeys.forEach(key => {
-            const paddedData = Array(paddingCount).fill(null).concat(this.historyData[key]);
+            const paddedData = Array(paddingCount).fill(null).concat(this.historyData[key].slice(-maxPoints));
             newSeries.push({
                 name: key,
                 type: 'line',
@@ -174,6 +169,20 @@ export class StackedMetric extends BaseMetric {
         this.lineOption.xAxis.data = paddedLabels;
         this.lineOption.series = newSeries;
         this.lineChart.setOption(this.lineOption);
+    }
+
+    renderDonut(totalValue) {
+        const usedColor = this.getThresholdColor(totalValue, this.preferredMaxValue);
+        const formattedTotal = Util.formatValue(totalValue, this.format, true);
+        this.donutOption.series[0].data[0].value = totalValue;
+        this.donutOption.series[0].data[0].itemStyle.color = (this.preferredMaxValue === 0) ? 'transparent' : usedColor;
+        this.donutOption.series[0].label.formatter = () => formattedTotal;
+        this.donutOption.series[0].label.textBorderColor = '#000000a0';
+        this.donutOption.series[0].label.textBorderWidth = 3;
+        this.donutOption.series[0].label.color = usedColor;
+        this.donutOption.series[0].label.fontSize = calculateFontSize(formattedTotal, this.preferredMaxValue) + 'rem';
+        this.donutOption.series[0].data[1].value = Math.max(0, (2 * this.preferredMaxValue) - totalValue);
+        this.donutChart.setOption(this.donutOption);
     }
 }
 

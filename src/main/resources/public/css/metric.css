@@ -58,6 +58,7 @@
 
 .line-container {
     flex: 1;
+    min-width: 0;
 }
 
 .metric-group {
@@ -70,6 +71,5 @@
     padding: 0.5rem 1.2rem;
     cursor: pointer;
     user-select: none;
-    border-radius: 0.6rem;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #202020;
 }

@@ -15,37 +15,39 @@
         <span>Section 31</span>
     </div>
 </header>
-
-${{metrics}}
-
-<footer class="site-footer">
-    <div class="footer-content">
-        <p>
+<div class="app-body">
+    <nav id="sidebar" class="sidebar">
+        <button id="sidebar-toggle" class="sidebar-item" type="button" title="Expand / Collapse">
+            <span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M4 6H20M4 12H20M4 18H20"/></svg></span>
+        </button>
+        ${{tabs}}
+        <div class="sidebar-footer">
             <a href="https://github.com/USS-Shenzhou/Section31" target="_blank">
                 GitHub
                 <svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU">
                     <path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path>
                 </svg>
-            </a> |
+            </a>
             <a href="https://space.bilibili.com/266675750">
                 BiliBili
                 <svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU">
                     <path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path>
                 </svg>
-            </a> |
+            </a>
             <a href="https://holojaneway.uss-shenzhou.cn/">
                 HoloJaneway
                 <svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU">
                     <path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path>
                 </svg>
             </a>
-        </p>
-        <p>
             <img src="https://www.gnu.org/graphics/agplv3-with-text-162x68.png" alt="AGPLv3 Logo" class="agpl3-logo">
-            Copyleft 2025 USS_Shenzhou.
-        </p>
-    </div>
-</footer>
+            <span>Copyleft 2025 USS_Shenzhou.</span>
+        </div>
+    </nav>
+    <main id="content" class="main-content">
+        ${{panels}}
+    </main>
+</div>
 <div id="pause-glow-overlay" class="pause-glow-overlay"></div>
 <div id="space-hint-toast" class="space-hint-toast">Press [Space] to pause/resume auto-refresh.<svg class="space-hint-border" aria-hidden="true"><rect width="100%" height="100%" pathLength="100"></rect></svg></div>
 </body>

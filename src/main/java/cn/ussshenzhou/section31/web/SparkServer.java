@@ -9,6 +9,8 @@ import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.fml.util.thread.EffectiveSide;
+import spark.Request;
+import spark.Response;
 import spark.Spark;
 
 /**
@@ -26,8 +28,14 @@ public class SparkServer {
                 } else {
                     Spark.staticFiles.externalLocation(FMLPaths.GAMEDIR.get().getParent().toString() + "\\src\\main\\resources\\public");
                 }
-                Spark.get("/api/all", (req, res) -> DataSourceHelper.getRefreshData());
-                Spark.get("/api/init", (req, res) -> DataSourceHelper.getInitData());
+                Spark.get("/api/all", (req, res) -> {
+                    enableGzip(req, res);
+                    return DataSourceHelper.getRefreshData();
+                });
+                Spark.get("/api/init", (req, res) -> {
+                    enableGzip(req, res);
+                    return DataSourceHelper.getInitData();
+                });
 
                 Spark.get("/", (req, res) -> {
                     res.redirect("/section31");
@@ -35,6 +43,7 @@ public class SparkServer {
                 });
                 Spark.get("/section31", (req, res) -> {
                     res.type("text/html");
+                    enableGzip(req, res);
                     return PageGenerator.getPage();
                 });
                 Spark.init();
@@ -45,5 +54,19 @@ public class SparkServer {
         }, "Section31 Server");
         serverThread.setDaemon(true);
         serverThread.start();
+    }
+
+    /**
+     * Spark only compresses a route response when it carries "Content-Encoding: gzip",
+     * but keeps that header even if the client does not accept gzip. So it must only be set for clients accepting gzip.
+     */
+    private static void enableGzip(Request request, Response response) {
+        var acceptEncodings = request.raw().getHeaders("Accept-Encoding");
+        while (acceptEncodings.hasMoreElements()) {
+            if (acceptEncodings.nextElement().contains("gzip")) {
+                response.header("Content-Encoding", "gzip");
+                return;
+            }
+        }
     }
 }

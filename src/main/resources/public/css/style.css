@@ -1,8 +1,17 @@
 @import "metric.css";
 @import "pause-glow.css";
+@import "sidebar.css";
+
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
 
 body {
-    margin: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    background-color: #090909;
 }
 
 :root {
@@ -10,6 +19,7 @@ body {
 }
 
 header {
+    flex: none;
     height: 4rem;
     display: flex;
     align-items: center;
@@ -34,33 +44,50 @@ header {
     font-weight: bold;
 }
 
-.site-footer {
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 2rem;
-    margin: 1rem 0 0 0;
-    text-align: center;
-    font-size: 1rem;
-    color: #ccc;
+.main-content {
+    flex: 1;
+    min-width: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 0 0.5rem 0.5rem 0.5rem;
     box-sizing: border-box;
-    width: calc(100% + 1rem);
-    position: relative;
-    bottom: -0.5rem;
-    left: -0.5rem;
-    right: -0.5rem;
 }
 
-.site-footer a {
-    color: #3c91ff;
-    text-decoration: none;
+::-webkit-scrollbar {
+    width: calc(0.4rem + 2px);
+    height: 0.4rem;
 }
 
-.site-footer a:hover {
-    text-decoration: underline;
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+    background-color: #000000;
+}
+
+::-webkit-scrollbar-track:vertical {
+    margin: calc((100vh - 4rem) * 0.025) 0;
+    background-clip: padding-box;
+    border-right: 2px solid transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #1e4980;
+    border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:vertical {
+    background-clip: padding-box;
+    border-right: 2px solid transparent;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+    * {
+        scrollbar-color: #1e4980 #000000;
+        scrollbar-width: thin;
+    }
 }
 
 .agpl3-logo {
     filter: hue-rotate(295deg) brightness(1.8) saturate(1.5);
-    vertical-align: middle;
     height: 4rem;
-    margin: 1rem 1.5rem;
+    margin: 0.5rem 0;
 }
