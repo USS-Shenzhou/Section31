@@ -1,4 +1,4 @@
-package cn.ussshenzhou.section31.provider.network;
+package cn.ussshenzhou.section31.util;
 
 import net.minecraft.resources.Identifier;
 
@@ -10,20 +10,21 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author USS_Shenzhou
  */
-public class SlidingWindowCollector {
-    private record DataNode(long expireNanos, Identifier id, int size) {}
+public class SimpleSlidingWindowCollector {
+    private record DataNode(long expireNanos, int value) {
+    }
 
     private final ConcurrentLinkedQueue<DataNode> queue = new ConcurrentLinkedQueue<>();
     private final ReentrantLock cleanLock = new ReentrantLock();
 
     private static final long WINDOW_NANOS = 1_000_000_000L;
 
-    public void put(Identifier id, int size) {
+    public void put(Identifier id, int value) {
         long expireTime = System.nanoTime() + WINDOW_NANOS;
-        queue.add(new DataNode(expireTime, id, size));
+        queue.add(new DataNode(expireTime, value));
     }
 
-    public Map<String, Integer> read() {
+    public int read() {
         long now = System.nanoTime();
         if (cleanLock.tryLock()) {
             try {
@@ -35,11 +36,11 @@ public class SlidingWindowCollector {
                 cleanLock.unlock();
             }
         }
-        Map<String, Integer> result = new HashMap<>();
+        int result = 0;
 
         for (DataNode node : queue) {
             if (node.expireNanos() > now) {
-                result.merge(node.id().toString(), node.size(), Integer::sum);
+                result += node.value;
             }
         }
 

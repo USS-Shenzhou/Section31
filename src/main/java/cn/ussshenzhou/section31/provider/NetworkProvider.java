@@ -1,5 +1,6 @@
-package cn.ussshenzhou.section31.provider.network;
+package cn.ussshenzhou.section31.provider;
 
+import cn.ussshenzhou.section31.util.SlidingWindowCollector;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
@@ -9,7 +10,7 @@ import net.minecraft.resources.Identifier;
 /**
  * @author USS_Shenzhou
  */
-public class NetworkDataProvider {
+public class NetworkProvider {
 
     public static final SlidingWindowCollector OUTBOUND_PACKET_SIZE = new SlidingWindowCollector();
     public static final SlidingWindowCollector OUTBOUND_PACKET_COUNT = new SlidingWindowCollector();

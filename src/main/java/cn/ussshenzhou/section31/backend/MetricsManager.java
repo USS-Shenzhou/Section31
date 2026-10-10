@@ -3,11 +3,11 @@ package cn.ussshenzhou.section31.backend;
 import cn.ussshenzhou.section31.backend.metric.BasicMetric;
 import cn.ussshenzhou.section31.backend.metric.MetricTab;
 import cn.ussshenzhou.section31.backend.metric.StackedMetric;
-import cn.ussshenzhou.section31.provider.JvmHelper;
+import cn.ussshenzhou.section31.provider.JvmProvider;
 import cn.ussshenzhou.section31.provider.MinecraftClientHelper;
 import cn.ussshenzhou.section31.provider.MinecraftServerHelper;
 import cn.ussshenzhou.section31.provider.OshiHelper;
-import cn.ussshenzhou.section31.provider.network.NetworkDataProvider;
+import cn.ussshenzhou.section31.provider.NetworkProvider;
 import com.google.common.collect.Lists;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
@@ -63,10 +63,10 @@ public class MetricsManager {
                     new BasicMetric("player", "Server Players", "", "", "int", MinecraftServerHelper::getPlayers, MinecraftServerHelper::getMaxPlayers, 1),
                     new BasicMetric("mspt", "Server MSPT", "Millisecond per Tick", "", "float", MinecraftServerHelper::getMspt, MinecraftServerHelper::getMaxMspt, 1),
 
-                    new StackedMetric("outbound_size", "Tx Packet Flow", "Outbound packet and size", " ", "net", NetworkDataProvider.OUTBOUND_PACKET_SIZE::read, NO_MAX, -1),
-                    new StackedMetric("inbound_size", "Rx Packet Flow", "Inbound packet and size", " ", "net", NetworkDataProvider.INBOUND_PACKET_SIZE::read, NO_MAX, -1),
-                    new StackedMetric("outbound_count", "Tx Packet Count", "Outbound packet count", " ", "int", NetworkDataProvider.OUTBOUND_PACKET_COUNT::read, NO_MAX, 2),
-                    new StackedMetric("inbound_count", "Rx Packet Count", "Inbound packet count", " ", "int", NetworkDataProvider.INBOUND_PACKET_COUNT::read, NO_MAX, 2),
+                    new StackedMetric("outbound_size", "Tx Packet Flow", "Outbound packet and size", " ", "net", NetworkProvider.OUTBOUND_PACKET_SIZE::read, NO_MAX, -2),
+                    new StackedMetric("inbound_size", "Rx Packet Flow", "Inbound packet and size", " ", "net", NetworkProvider.INBOUND_PACKET_SIZE::read, NO_MAX, -2),
+                    new StackedMetric("outbound_count", "Tx Packet Count", "Outbound packet count", " ", "int", NetworkProvider.OUTBOUND_PACKET_COUNT::read, NO_MAX, 2),
+                    new StackedMetric("inbound_count", "Rx Packet Count", "Inbound packet count", " ", "int", NetworkProvider.INBOUND_PACKET_COUNT::read, NO_MAX, 2),
 
                     new StackedMetric("visible_chunks", "Chunks Visible", "", "", "int", MinecraftServerHelper::getVisible, NO_MAX, 2),
                     new StackedMetric("updating_chunks", "Chunks Updating", "", "", "int", MinecraftServerHelper::getUpdating, NO_MAX, 2)
@@ -76,10 +76,10 @@ public class MetricsManager {
                     new BasicMetric("c_player", "Client Players", "", "", "int", MinecraftClientHelper::getPlayers, NO_MAX, 1),
                     new BasicMetric("c_fps", "FPS", "Frames per Second", "", "int", MinecraftClientHelper::getFPS, NO_MAX, 1),
 
-                    new StackedMetric("c_outbound_size", "Tx Packet Flow", "Outbound packet and size", " ", "net", NetworkDataProvider.OUTBOUND_PACKET_SIZE::read, NO_MAX, -1),
-                    new StackedMetric("c_inbound_size", "Rx Packet Flow", "Inbound packet and size", " ", "net", NetworkDataProvider.INBOUND_PACKET_SIZE::read, NO_MAX, -1),
-                    new StackedMetric("c_outbound_count", "Tx Packet Count", "Outbound packet count", " ", "int", NetworkDataProvider.OUTBOUND_PACKET_COUNT::read, NO_MAX, 2),
-                    new StackedMetric("c_inbound_count", "Rx Packet Count", "Inbound packet count", " ", "int", NetworkDataProvider.INBOUND_PACKET_COUNT::read, NO_MAX, 2),
+                    new StackedMetric("c_outbound_size", "Tx Packet Flow", "Outbound packet and size", " ", "net", NetworkProvider.OUTBOUND_PACKET_SIZE::read, NO_MAX, -2),
+                    new StackedMetric("c_inbound_size", "Rx Packet Flow", "Inbound packet and size", " ", "net", NetworkProvider.INBOUND_PACKET_SIZE::read, NO_MAX, -2),
+                    new StackedMetric("c_outbound_count", "Tx Packet Count", "Outbound packet count", " ", "int", NetworkProvider.OUTBOUND_PACKET_COUNT::read, NO_MAX, 2),
+                    new StackedMetric("c_inbound_count", "Rx Packet Count", "Inbound packet count", " ", "int", NetworkProvider.INBOUND_PACKET_COUNT::read, NO_MAX, 2),
 
                     new StackedMetric("c_chunks", "Chunks Loaded", "", "", "int", MinecraftClientHelper::getLoadedChunks, MinecraftClientHelper::getLoadedChunksMax, 2)
             ));
@@ -88,10 +88,10 @@ public class MetricsManager {
 
         var jvm = new MetricTab("JVM", ICON_JVM);
         var memory = new ArrayList<BasicMetric>();
-        JvmHelper.getMemoryPoolMetrics(memory);
+        JvmProvider.getMemoryPoolMetrics(memory);
         jvm.groups().put("Memory", memory);
         var threads = new ArrayList<BasicMetric>();
-        JvmHelper.getThreadsMetrics(threads);
+        JvmProvider.getThreadsMetrics(threads);
         jvm.groups().put("Threads", threads);
         put(jvm.name(), jvm);
 

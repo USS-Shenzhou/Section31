@@ -274,3 +274,9 @@ tasks.register("makeLibMixinableTask", MakeLibMixinableTask) {
 tasks.named("build") {
     finalizedBy tasks.named("makeLibMixinableTask")
 }
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += [
+            '--add-exports', 'jdk.jfr/jdk.jfr.tracing=ALL-UNNAMED'
+    ]
+}

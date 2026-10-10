@@ -31,7 +31,7 @@ export function formatValue(value, format, netLine = false) {
         case 'int':
             return Math.round(value) + `\u200B`;
         case 'percent':
-            return (value * 100).toFixed(0) + '%';
+            return (value * 100).toFixed(2) + '%';
         case 'float':
             return value.toFixed(2);
         case 'net':

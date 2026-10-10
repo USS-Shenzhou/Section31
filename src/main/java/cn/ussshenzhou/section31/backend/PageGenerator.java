@@ -101,9 +101,11 @@ public class PageGenerator {
 
     private static String getContainerHtml(int importance) {
         return switch (importance) {
-            case -1 -> """
+            case -100 -> """
+                    <div class="metrics-group-container" style="--metric-height: 20rem;">""";
+            case -2 -> """
                     <div class="metrics-group-container-grid" style="--metric-height: 14rem;">""";
-            case 0 -> """
+            case -1 -> """
                     <div class="metrics-group-container" style="--metric-height: 14rem;">""";
             case 1 -> """
                     <div class="metrics-group-container" style="--metric-height: 8rem;">""";
