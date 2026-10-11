@@ -7,6 +7,9 @@
   "mixins": [
     "PacketDecoderMixin",
     "PacketEncoderMixin",
+    "ServerLevelMixin",
+    "ServerChunkCacheMixin",
+    "LevelMixin",
     "spark.ClassPathResourceMixin"
   ],
   "client": [
