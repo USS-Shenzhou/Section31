@@ -1,5 +1,6 @@
 package cn.ussshenzhou.section31.backend;
 
+import cn.ussshenzhou.section31.Section31;
 import cn.ussshenzhou.section31.backend.metric.BasicMetric;
 import cn.ussshenzhou.section31.backend.metric.Tab;
 import cn.ussshenzhou.section31.backend.metric.StackedMetric;
@@ -9,8 +10,10 @@ import cn.ussshenzhou.section31.provider.MinecraftServerHelper;
 import cn.ussshenzhou.section31.provider.OshiHelper;
 import cn.ussshenzhou.section31.provider.NetworkProvider;
 import com.google.common.collect.Lists;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -23,6 +26,10 @@ import static cn.ussshenzhou.section31.util.Util.NO_MAX;
  * @author USS_Shenzhou
  * <p>
  * {@code tab} Tab name. Groups with the same tab name are shown in the same tab, e.g. "JVM".
+ * <p>
+ * {@code tabIcon} Required. Full path of a png texture used as the tab icon, e.g. "minecraft:textures/item/diamond.png".
+ * The first one takes effect for each tab. If invalid or not found, structure void is shown instead.
+ * Note that vanilla textures are not available on dedicated server.
  * <p>
  * {@code group} Group name.
  * <p>
@@ -49,12 +56,9 @@ import static cn.ussshenzhou.section31.util.Util.NO_MAX;
  * {@code importance} metric will take 1/importance with.
  */
 public class MetricsManager {
-    private static final String ICON_MINECRAFT = """
-            <path d="M12 3L20 7.5V16.5L12 21L4 16.5V7.5ZM4 7.5L12 12L20 7.5M12 12V21"/>""";
-    private static final String ICON_JVM = """
-            <path d="M5 10H16V15A4 4 0 0 1 12 19H9A4 4 0 0 1 5 15ZM16 11H18A2 2 0 0 1 18 15H16M8 4V7M10.5 4V7M13 4V7"/>""";
-    private static final String ICON_SYSTEM = """
-            <path d="M7 7H17V17H7ZM10 10H14V14H10ZM10 3V7M14 3V7M10 17V21M14 17V21M3 10H7M3 14H7M17 10H21M17 14H21"/>""";
+    private static final Identifier ICON_MINECRAFT = Identifier.fromNamespaceAndPath(Section31.MODID, "textures/minecraft.png");
+    private static final Identifier ICON_JVM = Identifier.fromNamespaceAndPath(Section31.MODID, "textures/redstone.png");
+    private static final Identifier ICON_SYSTEM = Identifier.fromNamespaceAndPath(Section31.MODID, "textures/command_block_minecart.png");
 
     protected static final LinkedHashMap<String, Tab> METRICS = new LinkedHashMap<>() {{
         var minecraft = new Tab("Minecraft", ICON_MINECRAFT);
@@ -87,12 +91,12 @@ public class MetricsManager {
         put(minecraft.name(), minecraft);
 
         var jvm = new Tab("JVM", ICON_JVM);
-        var memory = new ArrayList<BasicMetric>();
-        JvmProvider.getMemoryPoolMetrics(memory);
-        jvm.groups().put("Memory", memory);
         var threads = new ArrayList<BasicMetric>();
         JvmProvider.getThreadsMetrics(threads);
         jvm.groups().put("Threads", threads);
+        var memory = new ArrayList<BasicMetric>();
+        JvmProvider.getMemoryPoolMetrics(memory);
+        jvm.groups().put("Memory", memory);
         put(jvm.name(), jvm);
 
         var system = new Tab("System", ICON_SYSTEM);
@@ -109,9 +113,8 @@ public class MetricsManager {
         return METRICS;
     }
 
-    public static Tab getOrCreateTab(String name) {
-        //TODO support icon
-        return METRICS.computeIfAbsent(name, newTabName -> new Tab(newTabName, ""));
+    public static Tab getOrCreateTab(String name, @Nullable Identifier icon) {
+        return METRICS.computeIfAbsent(name, newTabName -> new Tab(newTabName, icon));
     }
 
     public static void forEachMetric(Consumer<BasicMetric> consumer) {

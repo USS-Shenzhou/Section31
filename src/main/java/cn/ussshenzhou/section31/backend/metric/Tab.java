@@ -1,5 +1,9 @@
 package cn.ussshenzhou.section31.backend.metric;
 
+import cn.ussshenzhou.section31.Section31;
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -7,23 +11,21 @@ import java.util.LinkedHashMap;
  * @author USS_Shenzhou
  */
 public class Tab {
+    public static final Identifier DEFAULT_ICON = Identifier.fromNamespaceAndPath(Section31.MODID, "textures/structure_void.png");
     protected final String name;
-    protected final String icon;
+    protected Identifier icon;
     protected final LinkedHashMap<String, ArrayList<BasicMetric>> groups = new LinkedHashMap<>();
 
-    /**
-     * @param icon Inner markup of a 24x24 SVG, drawn with stroke only. Empty string to use the first letter of name.
-     */
-    public Tab(String name, String icon) {
+    public Tab(String name, @Nullable Identifier icon) {
         this.name = name;
-        this.icon = icon;
+        this.icon = icon == null ? DEFAULT_ICON : icon;
     }
 
     public String name() {
         return name;
     }
 
-    public String icon() {
+    public Identifier icon() {
         return icon;
     }
 

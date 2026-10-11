@@ -3,6 +3,7 @@ package cn.ussshenzhou.section31.backend;
 import cn.ussshenzhou.section31.Section31;
 import cn.ussshenzhou.section31.backend.metric.BasicMetric;
 import com.mojang.logging.LogUtils;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -23,6 +24,7 @@ public class ThirdPartyMetricsReader {
                 .forEach(message -> {
                     var supplied = message.messageSupplier().get();
                     if (supplied instanceof Map<?, ?> dataMap
+                            && dataMap.containsKey("tabIcon")
                             && dataMap.containsKey("id")
                             && dataMap.containsKey("preferredMaxClass")
                             && dataMap.containsKey("preferredMaxMethod")
@@ -48,7 +50,7 @@ public class ThirdPartyMetricsReader {
                             return;
                         }
                         synchronized (MetricsManager.METRICS) {
-                            MetricsManager.getOrCreateTab(getOrDefault(dataMap, "tab", message.modId()))
+                            MetricsManager.getOrCreateTab(getOrDefault(dataMap, "tab", message.modId()), Identifier.tryParse((String) dataMap.get("tabIcon")))
                                     .group(getOrDefault(dataMap, "group", message.modId()))
                                     .add(new BasicMetric(
                                             (String) dataMap.get("id"),

@@ -2,13 +2,18 @@ package cn.ussshenzhou.section31.backend;
 
 import cn.ussshenzhou.section31.backend.metric.BasicMetric;
 import cn.ussshenzhou.section31.backend.metric.Tab;
+import cn.ussshenzhou.section31.util.ClientHelper;
+import cn.ussshenzhou.section31.util.ServerHelper;
+import net.minecraft.resources.Identifier;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -18,6 +23,7 @@ public class PageGenerator {
     private final static String HTML;
     private static volatile int metricNumber = 0;
     private static String page = null;
+    private static final String DEFAULT_TAG_ICON = Base64.getEncoder().encodeToString(readIcon(Tab.DEFAULT_ICON));
 
     static {
         try (InputStream inputStream = PageGenerator.class.getResourceAsStream("/public/section31.html");
@@ -90,13 +96,13 @@ public class PageGenerator {
     }
 
     private static String getIconHtml(Tab tab) {
-        if (tab.icon().isEmpty()) {
-            var initial = tab.name().isEmpty() ? "?" : Character.toString(tab.name().codePointAt(0)).toUpperCase(Locale.ROOT);
-            return String.format("""
-                    <span class="tab-icon-letter">%s</span>""", initial);
-        }
+        var icon = readIcon(tab.icon());
         return String.format("""
-                <svg viewBox="0 0 24 24">%s</svg>""", tab.icon());
+                <img src="data:image/png;base64,%s" alt="">""", icon.length == 0 ? DEFAULT_TAG_ICON : Base64.getEncoder().encodeToString(icon));
+    }
+
+    private static byte[] readIcon(Identifier identifier) {
+        return FMLEnvironment.getDist() == Dist.CLIENT ? ClientHelper.readIcon(identifier) : ServerHelper.readIconFromJar(identifier);
     }
 
     private static String getContainerHtml(int importance) {
