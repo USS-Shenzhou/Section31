@@ -1,7 +1,7 @@
 package cn.ussshenzhou.section31.backend;
 
 import cn.ussshenzhou.section31.backend.metric.BasicMetric;
-import cn.ussshenzhou.section31.backend.metric.MetricTab;
+import cn.ussshenzhou.section31.backend.metric.Tab;
 import cn.ussshenzhou.section31.backend.metric.StackedMetric;
 import cn.ussshenzhou.section31.provider.JvmProvider;
 import cn.ussshenzhou.section31.provider.MinecraftClientHelper;
@@ -56,8 +56,8 @@ public class MetricsManager {
     private static final String ICON_SYSTEM = """
             <path d="M7 7H17V17H7ZM10 10H14V14H10ZM10 3V7M14 3V7M10 17V21M14 17V21M3 10H7M3 14H7M17 10H21M17 14H21"/>""";
 
-    protected static final LinkedHashMap<String, MetricTab> METRICS = new LinkedHashMap<>() {{
-        var minecraft = new MetricTab("Minecraft", ICON_MINECRAFT);
+    protected static final LinkedHashMap<String, Tab> METRICS = new LinkedHashMap<>() {{
+        var minecraft = new Tab("Minecraft", ICON_MINECRAFT);
         if (FMLEnvironment.getDist() == Dist.DEDICATED_SERVER) {
             minecraft.groups().put("Minecraft Server", Lists.newArrayList(
                     new BasicMetric("player", "Server Players", "", "", "int", MinecraftServerHelper::getPlayers, MinecraftServerHelper::getMaxPlayers, 1),
@@ -86,7 +86,7 @@ public class MetricsManager {
         }
         put(minecraft.name(), minecraft);
 
-        var jvm = new MetricTab("JVM", ICON_JVM);
+        var jvm = new Tab("JVM", ICON_JVM);
         var memory = new ArrayList<BasicMetric>();
         JvmProvider.getMemoryPoolMetrics(memory);
         jvm.groups().put("Memory", memory);
@@ -95,7 +95,7 @@ public class MetricsManager {
         jvm.groups().put("Threads", threads);
         put(jvm.name(), jvm);
 
-        var system = new MetricTab("System", ICON_SYSTEM);
+        var system = new Tab("System", ICON_SYSTEM);
         system.groups().put("Basic", Lists.newArrayList(
                 new BasicMetric("cpu", "CPU", "CPU usage", "", "percent", OshiHelper::getCpu, OshiHelper::getCpuMax, 1),
                 new BasicMetric("ram", "RAM", "", " ", "byte", OshiHelper::getRam, OshiHelper::getRamMax, 1),
@@ -105,13 +105,13 @@ public class MetricsManager {
         put(system.name(), system);
     }};
 
-    public static Map<String, MetricTab> getMetrics() {
+    public static Map<String, Tab> getMetrics() {
         return METRICS;
     }
 
-    public static MetricTab getOrCreateTab(String name) {
+    public static Tab getOrCreateTab(String name) {
         //TODO support icon
-        return METRICS.computeIfAbsent(name, newTabName -> new MetricTab(newTabName, ""));
+        return METRICS.computeIfAbsent(name, newTabName -> new Tab(newTabName, ""));
     }
 
     public static void forEachMetric(Consumer<BasicMetric> consumer) {

@@ -1,7 +1,7 @@
 package cn.ussshenzhou.section31.backend;
 
 import cn.ussshenzhou.section31.backend.metric.BasicMetric;
-import cn.ussshenzhou.section31.backend.metric.MetricTab;
+import cn.ussshenzhou.section31.backend.metric.Tab;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -89,7 +89,7 @@ public class PageGenerator {
                 </details>""");
     }
 
-    private static String getIconHtml(MetricTab tab) {
+    private static String getIconHtml(Tab tab) {
         if (tab.icon().isEmpty()) {
             var initial = tab.name().isEmpty() ? "?" : Character.toString(tab.name().codePointAt(0)).toUpperCase(Locale.ROOT);
             return String.format("""

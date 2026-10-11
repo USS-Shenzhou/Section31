@@ -6,7 +6,7 @@ import java.util.LinkedHashMap;
 /**
  * @author USS_Shenzhou
  */
-public class MetricTab {
+public class Tab {
     protected final String name;
     protected final String icon;
     protected final LinkedHashMap<String, ArrayList<BasicMetric>> groups = new LinkedHashMap<>();
@@ -14,7 +14,7 @@ public class MetricTab {
     /**
      * @param icon Inner markup of a 24x24 SVG, drawn with stroke only. Empty string to use the first letter of name.
      */
-    public MetricTab(String name, String icon) {
+    public Tab(String name, String icon) {
         this.name = name;
         this.icon = icon;
     }
