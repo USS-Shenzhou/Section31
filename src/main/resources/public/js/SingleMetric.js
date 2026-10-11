@@ -94,6 +94,8 @@ export class SingleMetric extends BaseMetric {
             }],
             tooltip: {
                 trigger: 'axis',
+                backgroundColor: '#303030',
+                borderRadius: 0,
                 formatter: (params) => {
                     const item = params[0];
                     if (item.value === null || item.value === undefined) {

@@ -40,6 +40,8 @@ export class StackedMetric extends BaseMetric {
             backgroundColor: 'transparent',
             tooltip: {
                 trigger: 'axis',
+                backgroundColor: '#303030',
+                borderRadius: 0,
                 formatter: (params) => {
                     if (!params || params.length === 0) return '';
                     let validParams = params.filter(item => {
@@ -53,8 +55,9 @@ export class StackedMetric extends BaseMetric {
                     }
                     let res = `<div>${params[0].axisValue}</div>`;
                     validParams.forEach(item => {
+                        const hoveredClass = item.seriesName === this.hoveredSeriesName ? ' hovered' : '';
                         res += `
-                                    <div style="display: flex; justify-content: space-between;">
+                                    <div class="tooltip-row${hoveredClass}" data-series="${item.seriesName}" style="display: flex; justify-content: space-between;">
                                         <span>${item.marker} ${item.seriesName}&nbsp;</span>
                                         <b style="margin-left: auto;">${Util.formatValue(item.value, this.format)}</b>
                                     </div>
@@ -103,6 +106,19 @@ export class StackedMetric extends BaseMetric {
         this.lineChart.getZr().on('mousemove', (params) => {
             this.currentMouseX = params.event.clientX;
             this.currentMouseY = params.event.clientY;
+        });
+        this.lineChart.on('mouseover', (params) => {
+            this.setHoveredSeries(params.seriesName);
+        });
+        this.lineChart.on('mouseout', () => {
+            this.setHoveredSeries(null);
+        });
+    }
+
+    setHoveredSeries(seriesName) {
+        this.hoveredSeriesName = seriesName;
+        this.lineContainer.querySelectorAll('.tooltip-row').forEach(row => {
+            row.classList.toggle('hovered', row.dataset.series === seriesName);
         });
     }
 
@@ -159,6 +175,7 @@ export class StackedMetric extends BaseMetric {
                 stack: 'total',
                 areaStyle: {},
                 emphasis: {focus: 'series'},
+                triggerEvent: true,
                 symbol: 'none',
                 data: paddedData,
                 connectNulls: false,
